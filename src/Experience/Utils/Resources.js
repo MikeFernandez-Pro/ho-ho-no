@@ -1,0 +1,61 @@
+import * as THREE from "three";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader.js";
+import { EXRLoader } from "three/addons/loaders/EXRLoader.js";
+
+export default class Resources extends THREE.EventDispatcher {
+  constructor(sources) {
+    super();
+
+    this.sources = sources;
+
+    this.items = {};
+    this.toLoad = this.sources.length;
+    this.loaded = 0;
+
+    this.setLoaders();
+    this.startLoading();
+  }
+
+  setLoaders() {
+    this.loaders = {};
+    this.loaders.gltfLoader = new GLTFLoader();
+    this.loaders.textureLoader = new THREE.TextureLoader();
+    this.loaders.rgbeLoader = new RGBELoader();
+    this.loaders.exrLoader = new EXRLoader();
+  }
+
+  startLoading() {
+    // Load each source
+    for (const source of this.sources) {
+      if (source.type === "gltfModel") {
+        this.loaders.gltfLoader.load(source.path, (file) => {
+          this.sourceLoaded(source, file);
+        });
+      } else if (source.type === "texture") {
+        this.loaders.textureLoader.load(source.path, (file) => {
+          this.sourceLoaded(source, file);
+        });
+      } else if (source.type === "exrTexture") {
+        this.loaders.exrLoader.load(source.path, (file) => {
+          this.sourceLoaded(source, file);
+        });
+      } else if (source.type === "hdrTexture") {
+        this.loaders.rgbeLoader.load(source.path, (file) => {
+          file.mapping = THREE.EquirectangularReflectionMapping;
+          this.sourceLoaded(source, file);
+        });
+      }
+    }
+  }
+
+  sourceLoaded(source, file) {
+    this.items[source.name] = file;
+
+    this.loaded++;
+
+    if (this.loaded === this.toLoad) {
+      this.dispatchEvent({ type: "ready" });
+    }
+  }
+}
