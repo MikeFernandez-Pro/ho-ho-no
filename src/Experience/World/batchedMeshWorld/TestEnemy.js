@@ -31,6 +31,35 @@ export default class Enemy extends THREE.EventDispatcher {
     this.physics.addEventListener("collision", this.collisionEventHandler);
   }
 
+  killEnemyByInstanceId = (enemyInstanceId) => {
+    const enemyIndex = this.list.findIndex(
+      (e) => e.instance === enemyInstanceId
+    );
+    if (enemyIndex === -1) return;
+
+    const enemy = this.list[enemyIndex];
+
+    // Keep the exact same visual logic you had on collision:
+    // tweak the BatchedMesh matrix once, then stop syncing from physics.
+    const m = new THREE.Matrix4();
+    const pos = new THREE.Vector3();
+    const quat = new THREE.Quaternion();
+    const scl = new THREE.Vector3();
+
+    this.batchedMesh.getMatrixAt(enemyInstanceId, m);
+    m.decompose(pos, quat, scl);
+    scl.x = 3;
+    scl.y = this.time.elapsed;
+    m.compose(pos, quat, scl);
+    this.batchedMesh.setMatrixAt(enemyInstanceId, m);
+
+    // Remove rigidbody; attached colliders get removed with it in Rapier
+    this.physics.world.removeRigidBody(enemy.rigidBody);
+
+    // Stop syncing RB position in `update()` by removing it from the live list
+    this.list.splice(enemyIndex, 1);
+  };
+
   collisionEventHandler = (event) => {
     const c1Type = event.collider1.userData.type;
     const c2Type = event.collider2.userData.type;
@@ -50,19 +79,8 @@ export default class Enemy extends THREE.EventDispatcher {
       projectile: projectileCollider.userData.id,
     });
 
-    // Keep the exact same matrix edits as before, just without duplication
-    const m = new THREE.Matrix4();
-    const pos = new THREE.Vector3();
-    const quat = new THREE.Quaternion();
-    const scl = new THREE.Vector3();
-
-    this.batchedMesh.getMatrixAt(enemyCollider.userData.id, m);
-    m.decompose(pos, quat, scl);
-    pos.y = -2;
-    scl.x = 3;
-    scl.y = this.time.elapsed;
-    m.compose(pos, quat, scl);
-    this.batchedMesh.setMatrixAt(enemyCollider.userData.id, m);
+    // Freeze transform + remove physics so we stop copying RB position each frame
+    this.killEnemyByInstanceId(enemyCollider.userData.id);
   };
 
   setGeometry() {
