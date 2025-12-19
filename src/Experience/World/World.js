@@ -8,6 +8,7 @@ import Character from "./character/Character.js";
 import Enemy from "./enemy/Enemy.js";
 import EnemyInstanced from "./enemy/EnemyInstanced.js";
 import DummyTarget from "./DummyTarget.js";
+import TestEnemy from "./batchedMeshWorld/TestEnemy.js";
 export default class World {
   constructor() {
     this.experience = new Experience();
@@ -25,8 +26,8 @@ export default class World {
     this.toySoldier = new ToySoldier();
     this.batchedMeshWorld = new BatchedMeshWorld();
     this.character = new Character();
-    // this.enemy = new Enemy();
-    this.enemyInstanced = new EnemyInstanced();
+    //this.enemy = new Enemy();
+    //this.enemyInstanced = new EnemyInstanced();
     this.dummyTarget = new DummyTarget();
     // this.santa = new Santa();
   };
@@ -51,9 +52,9 @@ export default class World {
       this.dummyTarget.update();
     }
 
-    // if (this.batchedMeshWorld) {
-    //   this.batchedMeshWorld.update();
-    // }
+    if (this.batchedMeshWorld) {
+      this.batchedMeshWorld.update();
+    }
   }
 
   destroy() {

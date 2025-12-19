@@ -37,9 +37,16 @@ export default class ProjectilesFactory {
 
   setGeometry() {
     this.geometry = this.snowBallModel.scene.children[0].geometry;
+
+    const uv1 = this.geometry.attributes.uv.clone();
+
+    this.geometry.setAttribute("uv1", uv1);
+
     this.geometryBatchedMeshId = this.batchedMeshWorld.batchedMesh.addGeometry(
       this.geometry
     );
+
+    console.log(this.geometry);
   }
 
   createProjectileRigidBody(position, angle) {
