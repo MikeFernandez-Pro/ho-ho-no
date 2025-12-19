@@ -49,8 +49,6 @@ export default class BatchedMeshWorld {
   setInstances = () => {
     //   this.santaClous = new SantaClous(this.batchedMesh);
     this.testEnemy = new TestEnemy(this.batchedMesh);
-
-    console.log(this.testEnemy.declarationsShaderChunk);
   };
 
   setShadersConfig = () => {
@@ -117,6 +115,8 @@ mat4 removeScale(mat4 m) {
   update = () => {
     const t = this.time.elapsed;
     this.uniforms.uTime.value = t;
+
+    this.testEnemy.update();
 
     // this.santaClous.update();
   };

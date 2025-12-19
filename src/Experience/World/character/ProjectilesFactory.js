@@ -45,8 +45,6 @@ export default class ProjectilesFactory {
     this.geometryBatchedMeshId = this.batchedMeshWorld.batchedMesh.addGeometry(
       this.geometry
     );
-
-    console.log(this.geometry);
   }
 
   createProjectileRigidBody(position, angle) {

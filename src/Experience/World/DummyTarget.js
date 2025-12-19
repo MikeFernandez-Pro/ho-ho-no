@@ -28,7 +28,7 @@ export default class DummyTarget {
     this.collider.setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS);
     this.collider.userData = "dummyTarget";
 
-    this.physics.addEventListener("collision", this.collisionEventHandler);
+    // this.physics.addEventListener("collision", this.collisionEventHandler);
   }
 
   collisionEventHandler = (event) => {
