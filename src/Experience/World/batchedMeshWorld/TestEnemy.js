@@ -32,24 +32,37 @@ export default class Enemy extends THREE.EventDispatcher {
   }
 
   collisionEventHandler = (event) => {
-    if (
-      event.collider1.userData.type === "enemy" &&
-      event.collider2.userData.type === "projectile"
-    ) {
-      this.dispatchEvent({
-        type: "enemyHit",
-        projectile: event.collider2.userData.id,
-      });
-    }
-    if (
-      event.collider1.userData.type === "projectile" &&
-      event.collider2.userData.type === "enemy"
-    ) {
-      this.dispatchEvent({
-        type: "enemyHit",
-        projectile: event.collider1.userData.id,
-      });
-    }
+    const c1Type = event.collider1.userData.type;
+    const c2Type = event.collider2.userData.type;
+    const isEnemyProjectile =
+      (c1Type === "enemy" && c2Type === "projectile") ||
+      (c1Type === "projectile" && c2Type === "enemy");
+
+    if (!isEnemyProjectile) return;
+
+    const enemyCollider =
+      c1Type === "enemy" ? event.collider1 : event.collider2;
+    const projectileCollider =
+      c1Type === "projectile" ? event.collider1 : event.collider2;
+
+    this.dispatchEvent({
+      type: "enemyHit",
+      projectile: projectileCollider.userData.id,
+    });
+
+    // Keep the exact same matrix edits as before, just without duplication
+    const m = new THREE.Matrix4();
+    const pos = new THREE.Vector3();
+    const quat = new THREE.Quaternion();
+    const scl = new THREE.Vector3();
+
+    this.batchedMesh.getMatrixAt(enemyCollider.userData.id, m);
+    m.decompose(pos, quat, scl);
+    pos.y = -2;
+    scl.x = 3;
+    scl.y = this.time.elapsed;
+    m.compose(pos, quat, scl);
+    this.batchedMesh.setMatrixAt(enemyCollider.userData.id, m);
   };
 
   setGeometry() {
@@ -88,7 +101,7 @@ export default class Enemy extends THREE.EventDispatcher {
     this.physics = this.experience.physics;
   }
 
-  createEnnemieRigidBody(spawnPosition, enemyInstanceID) {
+  createEnnemieRigidBody(spawnPosition, enemyInstanceID, deadInstanceID) {
     // Rigid body configuration
     const enemyRigidBodyDesc = RAPIER.RigidBodyDesc.dynamic();
     enemyRigidBodyDesc.setTranslation(
@@ -156,19 +169,20 @@ export default class Enemy extends THREE.EventDispatcher {
         enemyRotation.z,
         enemyRotation.w
       );
-      const p = new THREE.Vector3(
+      const enemyPosition = new THREE.Vector3(
         enemyTranslation.x,
         enemyTranslation.y,
         enemyTranslation.z
-      ).add(ENEMY_MESH_OFFSET);
+      );
 
       const enemyMatrix = this.batchedMesh.getMatrixAt(
         enemy.instance,
         this.tmpMatrix
       );
-      enemyMatrix.setPosition(p);
+      enemyMatrix.setPosition(enemyPosition.add(ENEMY_MESH_OFFSET));
 
       this.batchedMesh.setMatrixAt(enemy.instance, this.tmpMatrix);
+
       //   if (
       //     projectile.spawnPosition.distanceTo(projectileTranslation) >
       //     PROJECTILE_MAX_DISTANCE
