@@ -19,6 +19,7 @@ export default class ProjectilesFactory {
     this.character = character;
     this.characterController = character.characterController;
     this.batchedMeshWorld = this.experience.world.batchedMeshWorld;
+    this.testEnemy = this.experience.world.batchedMeshWorld.testEnemy;
 
     this.snowBallModel = this.resources.items.snowBallModel;
     this.gradientTexture = this.experience.resources.items.gradientTexture;
@@ -29,10 +30,16 @@ export default class ProjectilesFactory {
     this.setGeometry();
 
     this.characterController.addEventListener("shoot", this.clickEventHandler);
+    this.testEnemy.addEventListener("enemyHit", this.enemyHitEventHandler);
   }
 
   clickEventHandler = (event) => {
     this.createProjectile(event.position, event.angle);
+  };
+
+  enemyHitEventHandler = (event) => {
+    // `event.projectile` is a BatchedMesh *instance id* (not an index in `this.list`)
+    this.destroyProjectileByInstance(event.projectile);
   };
 
   setGeometry() {
@@ -47,7 +54,7 @@ export default class ProjectilesFactory {
     );
   }
 
-  createProjectileRigidBody(position, angle) {
+  createProjectileRigidBody(position, angle, projectileInstanceID) {
     // Rigid body configuration
     const projectileRigidBodyDesc = RAPIER.RigidBodyDesc.dynamic();
     projectileRigidBodyDesc.setTranslation(position.x, position.y, position.z);
@@ -74,13 +81,16 @@ export default class ProjectilesFactory {
       projectileColliderDesc,
       projectileRigidBody
     );
-    projectileCollider.userData = "projectile";
+    projectileCollider.userData = {
+      type: "projectile",
+      id: projectileInstanceID,
+    };
 
     return { rigidBody: projectileRigidBody, collider: projectileCollider };
   }
 
   createProjectile(position, angle) {
-    const projectileInstance = this.batchedMeshWorld.batchedMesh.addInstance(
+    const projectileInstanceID = this.batchedMeshWorld.batchedMesh.addInstance(
       this.geometryBatchedMeshId
     );
 
@@ -102,11 +112,12 @@ export default class ProjectilesFactory {
 
     const { rigidBody, collider } = this.createProjectileRigidBody(
       spawnPosition,
-      angle
+      angle,
+      projectileInstanceID
     );
 
     this.list.push({
-      instance: projectileInstance,
+      instance: projectileInstanceID,
       rigidBody,
       collider,
       spawnPosition,
@@ -158,6 +169,7 @@ export default class ProjectilesFactory {
 
   destroyProjectile(index) {
     const projectile = this.list[index];
+    if (!projectile) return;
 
     // remove mesh properly
     this.batchedMeshWorld.batchedMesh.deleteInstance(projectile.instance);
@@ -171,6 +183,12 @@ export default class ProjectilesFactory {
     this.list.splice(index, 1);
   }
 
+  destroyProjectileByInstance(instanceId) {
+    const index = this.list.findIndex((p) => p.instance === instanceId);
+    if (index === -1) return;
+    this.destroyProjectile(index);
+  }
+
   destroy() {
     this.characterController.removeEventListener(
       "shoot",
@@ -182,11 +200,8 @@ export default class ProjectilesFactory {
       this.destroyProjectile(i);
     }
 
-    // remove + dispose the shared resources once
-    this.batchedMeshWorld.batchedMesh.deleteInstance(
-      this.geometryBatchedMeshId
-    );
-    this.geometry.dispose();
-    this.material.dispose();
+    // Note: `geometryBatchedMeshId` is a geometry id in BatchedMesh (not an instance id),
+    // and the projectile geometry/material may be shared with loaded resources.
+    // So we intentionally avoid disposing/removing them here.
   }
 }

@@ -8,8 +8,10 @@ import logicShaderChunk from "../../../shaders/testEnemy/logic.glsl?raw";
 
 const ENEMY_MESH_OFFSET = new THREE.Vector3(0, -1, 0);
 
-export default class Enemy {
+export default class Enemy extends THREE.EventDispatcher {
   constructor(batchedMesh) {
+    super();
+
     this.experience = new Experience();
     this.scene = this.experience.scene;
     this.resources = this.experience.resources;
@@ -31,13 +33,22 @@ export default class Enemy {
 
   collisionEventHandler = (event) => {
     if (
-      (event.collider1.userData === "enemy" ||
-        event.collider2.userData === "enemy") &&
-      (event.collider1.userData === "projectile" ||
-        event.collider2.userData === "projectile")
+      event.collider1.userData.type === "enemy" &&
+      event.collider2.userData.type === "projectile"
     ) {
-      console.log("collision", event.collider1, event.collider2);
-      //   this.mesh.visible = false;
+      this.dispatchEvent({
+        type: "enemyHit",
+        projectile: event.collider2.userData.id,
+      });
+    }
+    if (
+      event.collider1.userData.type === "projectile" &&
+      event.collider2.userData.type === "enemy"
+    ) {
+      this.dispatchEvent({
+        type: "enemyHit",
+        projectile: event.collider1.userData.id,
+      });
     }
   };
 
@@ -77,7 +88,7 @@ export default class Enemy {
     this.physics = this.experience.physics;
   }
 
-  createEnnemieRigidBody(spawnPosition) {
+  createEnnemieRigidBody(spawnPosition, enemyInstanceID) {
     // Rigid body configuration
     const enemyRigidBodyDesc = RAPIER.RigidBodyDesc.dynamic();
     enemyRigidBodyDesc.setTranslation(
@@ -97,23 +108,29 @@ export default class Enemy {
       enemyRigidBody
     );
     enemyCollider.setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS);
-    enemyCollider.userData = "enemy";
+    enemyCollider.userData = {
+      type: "enemy",
+      id: enemyInstanceID,
+    };
 
     return { rigidBody: enemyRigidBody, collider: enemyCollider };
   }
 
   createEnnemie(spawnPosition) {
-    const enemyInstance = this.batchedMesh.addInstance(
+    const enemyInstanceID = this.batchedMesh.addInstance(
       this.enemyRunningBatchedMeshGeometry
     );
 
     this.tmpMatrix.makeScale(2, 1, 1);
-    this.batchedMesh.setMatrixAt(enemyInstance, this.tmpMatrix);
+    this.batchedMesh.setMatrixAt(enemyInstanceID, this.tmpMatrix);
 
-    const { rigidBody, collider } = this.createEnnemieRigidBody(spawnPosition);
+    const { rigidBody, collider } = this.createEnnemieRigidBody(
+      spawnPosition,
+      enemyInstanceID
+    );
 
     this.list.push({
-      instance: enemyInstance,
+      instance: enemyInstanceID,
       rigidBody,
       collider,
       spawnPosition,
