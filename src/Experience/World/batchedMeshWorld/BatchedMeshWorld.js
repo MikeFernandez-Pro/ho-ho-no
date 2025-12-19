@@ -98,7 +98,7 @@ mat4 removeScale(mat4 m) {
         `
           #include <begin_vertex>
           ${logicShaderChunk}
-          ${this.testEnemy.logicShaderChunk}  
+
     
    
           `
@@ -108,46 +108,14 @@ mat4 removeScale(mat4 m) {
       shader.vertexShader = shader.vertexShader.replace(
         "#include <project_vertex>",
         `
-vec4 mvPosition;
-
-#ifdef USE_BATCHING
-  float sx = length(batchingMatrix[0].xyz);
-
-  if (abs(sx - 2.0) < 0.001) {
-
-    float frame = mod(uTime * fps, uTotalFramesWalk) / uTotalFramesWalk;
-    vec3 pos = texture(uVATWalk, vec2(uv1.x, uv1.y - frame)).xzy;
-    mvPosition = removeScale(batchingMatrix) * vec4(pos, 1.0);
-
-  } else if (abs(sx - 3.0) < 0.001) {
-
-    float frame = mod(uTime * fps, uTotalFramesDeath) / uTotalFramesDeath;
-    vec3 pos = texture(uVATDeath, vec2(uv1.x, uv1.y - frame)).xzy;
-    mvPosition = removeScale(batchingMatrix) * vec4(pos, 1.0);
-
-  } else {
- 
-    mvPosition = batchingMatrix * vec4(transformed, 1.0);
-
-  }
-#else
-  mvPosition = vec4(transformed, 1.0);
-#endif
-
-#ifdef USE_INSTANCING
-  mvPosition = instanceMatrix * mvPosition;
-#endif
-
-mvPosition = modelViewMatrix * mvPosition;
-gl_Position = projectionMatrix * mvPosition;
-
+        ${this.testEnemy.logicShaderChunk}
   `
       );
     };
   };
 
   update = () => {
-    const t = -this.time.elapsed;
+    const t = this.time.elapsed;
     this.uniforms.uTime.value = t;
 
     // this.santaClous.update();
