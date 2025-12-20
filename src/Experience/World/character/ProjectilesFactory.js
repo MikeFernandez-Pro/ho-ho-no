@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import * as RAPIER from "@dimforge/rapier3d";
-import Experience from "#experience/experience.js";
+import Experience from "#experience/Experience.js";
 
 const PROJECTILE_SIZE = 0.4;
 const PROJECTILE_COLLIDER_SIZE = PROJECTILE_SIZE * 0.5;

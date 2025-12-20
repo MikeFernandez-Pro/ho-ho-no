@@ -1,4 +1,4 @@
-import Experience from "#experience/experience.js";
+import Experience from "#experience/Experience.js";
 import * as RAPIER from "@dimforge/rapier3d";
 import * as THREE from "three";
 

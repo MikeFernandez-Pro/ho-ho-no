@@ -1,14 +1,14 @@
-import Experience from "../Experience.js";
-import Environment from "./Environment.js";
+import Experience from "#experience/Experience.js";
+import Environment from "#world/Environment.js";
 
-import ToySoldier from "./ToySoldier.js";
-import Camp from "./Camp.js";
-import BatchedMeshWorld from "./batchedMeshWorld/BatchedMeshWorld.js";
-import Character from "./character/Character.js";
-import Enemy from "./enemy/Enemy.js";
-import EnemyInstanced from "./enemy/EnemyInstanced.js";
-import DummyTarget from "./DummyTarget.js";
-import TestEnemy from "./batchedMeshWorld/TestEnemy.js";
+import ToySoldier from "#world/ToySoldier.js";
+import Camp from "#world/Camp.js";
+import BatchedMeshWorld from "#world/batchedMeshWorld/BatchedMeshWorld.js";
+import Character from "#world/character/Character.js";
+import Enemy from "#world/enemy/Enemy.js";
+import EnemyInstanced from "#world/enemy/EnemyInstanced.js";
+import DummyTarget from "#world/DummyTarget.js";
+import TestEnemy from "#world/batchedMeshWorld/TestEnemy.js";
 export default class World {
   constructor() {
     this.experience = new Experience();

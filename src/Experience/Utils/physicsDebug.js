@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import Experience from "#experience/experience.js";
+import Experience from "#experience/Experience.js";
 
 export default class PhysicsDebug {
   constructor() {

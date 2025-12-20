@@ -1,16 +1,16 @@
 import * as THREE from "three";
 
-import Debug from "./Utils/Debug.js";
-import Sizes from "./Utils/Sizes.js";
-import Time from "./Utils/Time.js";
-import Camera from "./Camera.js";
-import Renderer from "./Renderer.js";
-import World from "./World/World.js";
-import Resources from "./Utils/Resources.js";
-import Perf from "./Utils/Perf.js";
-import sources from "./sources.js";
-import Physics from "./Utils/physics.js";
-import PhysicsDebug from "./Utils/physicsDebug.js";
+import Debug from "#utils/Debug.js";
+import Sizes from "#utils/Sizes.js";
+import Time from "#utils/Time.js";
+import Camera from "#experience/Camera.js";
+import Renderer from "#experience/Renderer.js";
+import World from "#world/World.js";
+import Resources from "#utils/Resources.js";
+import Perf from "#utils/Perf.js";
+import sources from "#experience/sources.js";
+import Physics from "#utils/physics.js";
+import PhysicsDebug from "#utils/physicsDebug.js";
 
 let instance = null;
 

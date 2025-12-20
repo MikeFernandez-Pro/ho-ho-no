@@ -1,4 +1,4 @@
-import Experience from "#experience/experience.js";
+import Experience from "#experience/Experience.js";
 import * as THREE from "three";
 
 const keysConfigList = {
@@ -138,7 +138,7 @@ export default class CharacterController extends THREE.EventDispatcher {
     // It will pick idle/run automatically, and will ignore locomotion while shooting.
     this.characterAnimationController.setMovementAnimation(hasMovementInput);
 
-    if (!hasMovementInput || this.isShooting) {
+    if (!hasMovementInput) {
       this.linvel.x = 0;
       this.linvel.y = velocity.y;
       this.linvel.z = 0;

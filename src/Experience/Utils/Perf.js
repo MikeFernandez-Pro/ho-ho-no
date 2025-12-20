@@ -1,5 +1,5 @@
 import { ThreePerf } from "three-perf";
-import Experience from "../Experience.js";
+import Experience from "#experience/Experience.js";
 
 export default class Perf {
   constructor() {

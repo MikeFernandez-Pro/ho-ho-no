@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import Experience from "../Experience.js";
+import Experience from "#experience/Experience.js";
 import * as RAPIER from "@dimforge/rapier3d";
 
 export default class DummyTarget {

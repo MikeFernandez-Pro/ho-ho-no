@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import Experience from "#experience/experience.js";
+import Experience from "#experience/Experience.js";
 
 import declarationsShaderChunk from "../../../shaders/enemyInstanced/declarations.glsl?raw";
 import logicShaderChunk from "../../../shaders/enemyInstanced/logic.glsl?raw";

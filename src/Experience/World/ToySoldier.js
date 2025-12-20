@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import Experience from "../Experience.js";
+import Experience from "#experience/Experience.js";
 
 const COUNT = 165;
 const SPACING = 5;

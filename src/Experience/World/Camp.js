@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import * as RAPIER from "@dimforge/rapier3d";
 
-import Experience from "../Experience.js";
+import Experience from "#experience/Experience.js";
 
 export default class Camp {
   constructor() {

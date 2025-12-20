@@ -5,12 +5,12 @@
   "type": "module",
   "imports": {
     "#*": "./src/*",
-    "#experience/*": "./src/experience/*",
-    "#world/*": "./src/experience/world/*",
+    "#experience/*": "./src/Experience/*",
+    "#world/*": "./src/Experience/World/*",
     "#assets/*": "./src/assets/*",
-    "#resources/*": "./src/experience/resources/*",
-    "#sources/*": "./src/sources/*",
-    "#utils/*": "./src/experience/utils/*",
+    "#resources/*": "./src/Experience/Utils/*",
+    "#sources/*": "./src/Experience/*",
+    "#utils/*": "./src/Experience/Utils/*",
     "#shaders/*": "./src/shaders/*"
   },
   "scripts": {

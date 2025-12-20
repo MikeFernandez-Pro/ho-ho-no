@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import * as RAPIER from "@dimforge/rapier3d";
 
-import Experience from "#experience/experience.js";
+import Experience from "#experience/Experience.js";
 import CharacterAnimationController from "./CharacterAnimationController.js";
 import CharacterController from "./CharacterController.js";
 import ProjectilesFactory from "./ProjectilesFactory.js";

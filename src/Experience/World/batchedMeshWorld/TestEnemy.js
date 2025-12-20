@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import * as RAPIER from "@dimforge/rapier3d";
 
-import Experience from "#experience/experience.js";
+import Experience from "#experience/Experience.js";
 
 import declarationsShaderChunk from "../../../shaders/testEnemy/declarations.glsl?raw";
 import logicShaderChunk from "../../../shaders/testEnemy/logic.glsl?raw";

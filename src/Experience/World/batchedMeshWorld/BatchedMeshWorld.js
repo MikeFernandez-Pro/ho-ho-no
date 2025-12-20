@@ -1,11 +1,11 @@
 import * as THREE from "three";
-import Experience from "../../Experience.js";
+import Experience from "#experience/Experience.js";
 
 // import SantaClous from "./SantaClous.js";
 
 import declarationsShaderChunk from "../../../shaders/batchedMeshWorld/declarations.glsl?raw";
 import logicShaderChunk from "../../../shaders/batchedMeshWorld/logic.glsl?raw";
-import TestEnemy from "./TestEnemy.js";
+import TestEnemy from "#world/batchedMeshWorld/TestEnemy.js";
 
 export default class BatchedMeshWorld {
   constructor() {
@@ -63,7 +63,7 @@ export default class BatchedMeshWorld {
     });
 
     this.configureMaterialShader(this.material);
-    // this.configureMaterialShader(this.batchedMesh.customDepthMaterial);
+    this.configureMaterialShader(this.batchedMesh.customDepthMaterial);
   };
 
   configureMaterialShader = (material) => {
@@ -78,13 +78,6 @@ export default class BatchedMeshWorld {
           #include <common>
           ${declarationsShaderChunk}
           ${this.testEnemy.declarationsShaderChunk}
-
-mat4 removeScale(mat4 m) {
-  m[0].xyz = normalize(m[0].xyz);
-  m[1].xyz = normalize(m[1].xyz);
-  m[2].xyz = normalize(m[2].xyz);
-  return m;
-}
           
           `
         //${this.testEnemy.declarationsShaderChunk}
