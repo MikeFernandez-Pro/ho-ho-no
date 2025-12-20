@@ -3,6 +3,7 @@ vec4 mvPosition;
 #ifdef USE_BATCHING
    float sx = length(batchingMatrix[0].xyz);
    float sy = length(batchingMatrix[1].xyz);
+   float sz = length(batchingMatrix[2].xyz);
 
    // Walk Animation
    if (abs(sx - 2.0) < 0.001 ) {
@@ -15,11 +16,26 @@ vec4 mvPosition;
    } else if (abs(sx - 3.0) < 0.001) {
 
       if (sy > 0.002) {
-         // Death Animation   
-         float localTime = max(uTime - abs(sy), 0.0);
-         float frame = min(localTime * fps, uTotalFramesDeath) / uTotalFramesDeath;
-         frame = 1.0 -frame;
-         vec3 pos = texture(uVATDeath, vec2(uv1.x, uv1.y - frame)).xzy;
+         // Smooth blend walk -> death:
+         // - scale.x encodes anim id (2 = walk, 3 = death)
+         // - scale.y encodes hitTime (seconds)
+         // - scale.z encodes blendDuration (seconds)
+         float hitTime = abs(sy);
+         float localTime = max(uTime - hitTime, 0.0);
+         float blendDuration = max(abs(sz), 0.0001);
+         float blendT = clamp(localTime / blendDuration, 0.0, 1.0);
+
+         // Walk pose frozen at hit moment (so transition is continuous)
+         float walkFrame = mod(hitTime * fps, uTotalFramesWalk) / uTotalFramesWalk;
+         walkFrame = 1.0 - walkFrame;
+         vec3 posWalk = texture(uVATWalk, vec2(uv1.x, uv1.y - walkFrame)).xzy;
+
+         // Death pose starting at localTime=0
+         float deathFrame = min(localTime * fps, uTotalFramesDeath) / uTotalFramesDeath;
+         deathFrame = 1.0 - deathFrame;
+         vec3 posDeath = texture(uVATDeath, vec2(uv1.x, uv1.y - deathFrame)).xzy;
+
+         vec3 pos = mix(posWalk, posDeath, blendT);
          mvPosition = removeScale(batchingMatrix) * vec4(pos, 1.0);
       } else {
          mvPosition = removeScale(batchingMatrix) * vec4(transformed, 1.0);

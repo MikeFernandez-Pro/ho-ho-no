@@ -10,6 +10,7 @@ const ENEMY_MESH_OFFSET = new THREE.Vector3(0, -1, 0);
 const DEAD_SINK_DELAY = 3; // seconds after hit before sinking starts
 const DEAD_SINK_TARGET_Y = -3;
 const DEAD_SINK_SPEED = 1; // units / second
+const DEATH_BLEND_DURATION = 0.25; // seconds (stored in scale.z, used in shader)
 
 export default class Enemy extends THREE.EventDispatcher {
   constructor(batchedMesh) {
@@ -52,9 +53,11 @@ export default class Enemy extends THREE.EventDispatcher {
 
     this.batchedMesh.getMatrixAt(enemyInstanceId, m);
     m.decompose(pos, quat, scl);
-    pos.y = 0;
+
+    // pos.y = 0.;
     scl.x = 3;
     scl.y = this.time.elapsed;
+    scl.z = DEATH_BLEND_DURATION;
     m.compose(pos, quat, scl);
     this.batchedMesh.setMatrixAt(enemyInstanceId, m);
 
