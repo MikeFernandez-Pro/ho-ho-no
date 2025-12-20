@@ -7,6 +7,9 @@ import declarationsShaderChunk from "../../../shaders/testEnemy/declarations.gls
 import logicShaderChunk from "../../../shaders/testEnemy/logic.glsl?raw";
 
 const ENEMY_MESH_OFFSET = new THREE.Vector3(0, -1, 0);
+const DEAD_SINK_DELAY = 3; // seconds after hit before sinking starts
+const DEAD_SINK_TARGET_Y = -3;
+const DEAD_SINK_SPEED = 1; // units / second
 
 export default class Enemy extends THREE.EventDispatcher {
   constructor(batchedMesh) {
@@ -38,9 +41,10 @@ export default class Enemy extends THREE.EventDispatcher {
     if (enemyIndex === -1) return;
 
     const enemy = this.list[enemyIndex];
+    if (!enemy.rigidBody) {
+      return;
+    }
 
-    // Keep the exact same visual logic you had on collision:
-    // tweak the BatchedMesh matrix once, then stop syncing from physics.
     const m = new THREE.Matrix4();
     const pos = new THREE.Vector3();
     const quat = new THREE.Quaternion();
@@ -48,6 +52,7 @@ export default class Enemy extends THREE.EventDispatcher {
 
     this.batchedMesh.getMatrixAt(enemyInstanceId, m);
     m.decompose(pos, quat, scl);
+    pos.y = 0;
     scl.x = 3;
     scl.y = this.time.elapsed;
     m.compose(pos, quat, scl);
@@ -56,8 +61,12 @@ export default class Enemy extends THREE.EventDispatcher {
     // Remove rigidbody; attached colliders get removed with it in Rapier
     this.physics.world.removeRigidBody(enemy.rigidBody);
 
-    // Stop syncing RB position in `update()` by removing it from the live list
-    this.list.splice(enemyIndex, 1);
+    // Mark as dead so `update()` stops copying RB position and starts sinking after a delay
+    enemy.rigidBody = null;
+    enemy.hitTime = this.time.elapsed;
+    enemy.deadPosition = pos;
+    enemy.deadQuaternion = quat;
+    enemy.deadScale = scl;
   };
 
   collisionEventHandler = (event) => {
@@ -119,7 +128,7 @@ export default class Enemy extends THREE.EventDispatcher {
     this.physics = this.experience.physics;
   }
 
-  createEnnemieRigidBody(spawnPosition, enemyInstanceID, deadInstanceID) {
+  createEnnemieRigidBody(spawnPosition, enemyInstanceID) {
     // Rigid body configuration
     const enemyRigidBodyDesc = RAPIER.RigidBodyDesc.dynamic();
     enemyRigidBodyDesc.setTranslation(
@@ -165,48 +174,55 @@ export default class Enemy extends THREE.EventDispatcher {
       rigidBody,
       collider,
       spawnPosition,
+      hitTime: null,
+      deadPosition: null,
+      deadQuaternion: null,
+      deadScale: null,
     });
   }
 
   update() {
+    const dt = this.time.delta * 0.001;
+
     for (let i = this.list.length - 1; i >= 0; i--) {
       const enemy = this.list[i];
-      const enemyTranslation = enemy.rigidBody.translation();
-      const enemyRotation = enemy.rigidBody.rotation();
-      //   projectile.rigidBody.setLinvel(
-      //     {
-      //       x: projectile.directionVector.x * PROJECTILE_SPEED,
-      //       y: 0,
-      //       z: projectile.directionVector.z * PROJECTILE_SPEED,
-      //     },
-      //     true
-      //   );
-      const q = new THREE.Quaternion(
-        enemyRotation.x,
-        enemyRotation.y,
-        enemyRotation.z,
-        enemyRotation.w
-      );
-      const enemyPosition = new THREE.Vector3(
-        enemyTranslation.x,
-        enemyTranslation.y,
-        enemyTranslation.z
-      );
 
-      const enemyMatrix = this.batchedMesh.getMatrixAt(
-        enemy.instance,
-        this.tmpMatrix
-      );
-      enemyMatrix.setPosition(enemyPosition.add(ENEMY_MESH_OFFSET));
+      // Alive: sync from Rapier
+      if (enemy.rigidBody) {
+        const enemyTranslation = enemy.rigidBody.translation();
+        const enemyPosition = new THREE.Vector3(
+          enemyTranslation.x,
+          enemyTranslation.y,
+          enemyTranslation.z
+        );
 
+        const enemyMatrix = this.batchedMesh.getMatrixAt(
+          enemy.instance,
+          this.tmpMatrix
+        );
+        enemyMatrix.setPosition(enemyPosition.add(ENEMY_MESH_OFFSET));
+        this.batchedMesh.setMatrixAt(enemy.instance, this.tmpMatrix);
+        continue;
+      }
+
+      // Dead: after a delay, sink down, then delete instance + remove from list
+      if (enemy.hitTime === null) continue;
+      if (this.time.elapsed < enemy.hitTime + DEAD_SINK_DELAY) continue;
+      if (!enemy.deadPosition || !enemy.deadQuaternion || !enemy.deadScale)
+        continue;
+
+      enemy.deadPosition.y -= DEAD_SINK_SPEED * dt;
+      this.tmpMatrix.compose(
+        enemy.deadPosition,
+        enemy.deadQuaternion,
+        enemy.deadScale
+      );
       this.batchedMesh.setMatrixAt(enemy.instance, this.tmpMatrix);
 
-      //   if (
-      //     projectile.spawnPosition.distanceTo(projectileTranslation) >
-      //     PROJECTILE_MAX_DISTANCE
-      //   ) {
-      //     this.destroyProjectile(i);
-      //   }
+      if (enemy.deadPosition.y <= DEAD_SINK_TARGET_Y) {
+        this.batchedMesh.deleteInstance(enemy.instance);
+        this.list.splice(i, 1);
+      }
     }
   }
 }
