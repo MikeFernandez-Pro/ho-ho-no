@@ -23,12 +23,12 @@ export default class World {
     // Setup
     this.environment = new Environment();
     this.camp = new Camp();
-    this.toySoldier = new ToySoldier();
+    //this.toySoldier = new ToySoldier();
     this.batchedMeshWorld = new BatchedMeshWorld();
     this.character = new Character();
     //this.enemy = new Enemy();
     //this.enemyInstanced = new EnemyInstanced();
-    this.dummyTarget = new DummyTarget();
+    // this.dummyTarget = new DummyTarget();
     // this.santa = new Santa();
   };
 
@@ -36,9 +36,9 @@ export default class World {
     //if (this.santa) {
     // this.santa.update();
     //}
-    if (this.toySoldier) {
-      this.toySoldier.update();
-    }
+    // if (this.toySoldier) {
+    //   this.toySoldier.update();
+    // }
     if (this.character) {
       this.character.update();
     }

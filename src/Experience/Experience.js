@@ -10,7 +10,7 @@ import Resources from "#utils/Resources.js";
 import Perf from "#utils/Perf.js";
 import sources from "#experience/sources.js";
 import Physics from "#utils/physics.js";
-import PhysicsDebug from "#utils/physicsDebug.js";
+// import PhysicsDebug from "#utils/physicsDebug.js";
 
 let instance = null;
 
@@ -38,7 +38,7 @@ export default class Experience {
     this.renderer = new Renderer();
     this.perf = new Perf();
     this.physics = new Physics();
-    this.physicsDebug = new PhysicsDebug();
+    // this.physicsDebug = new PhysicsDebug();
     this.world = new World();
 
     // Resize event
@@ -57,7 +57,7 @@ export default class Experience {
     this.camera.update();
     this.world.update();
     this.physics.update();
-    this.physicsDebug.update();
+    // this.physicsDebug.update();
     this.renderer.update();
   };
 

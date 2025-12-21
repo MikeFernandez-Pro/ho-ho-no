@@ -23,6 +23,8 @@ export default class BatchedMeshWorld {
 
   setBaseColorTexture = () => {
     this.gradientTexture = this.resources.items.gradientTexture;
+    this.gradientTexture.colorSpace = THREE.SRGBColorSpace;
+    this.gradientTexture.flipY = false;
   };
 
   setMaterial = () => {
@@ -54,7 +56,7 @@ export default class BatchedMeshWorld {
   setShadersConfig = () => {
     this.uniforms = {
       uTime: { value: 0 },
-      fps: { value: 40 },
+      fps: { value: 60 },
       totalFrames: { value: 48 },
     };
 

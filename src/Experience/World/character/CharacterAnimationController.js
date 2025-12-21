@@ -59,7 +59,7 @@ export default class CharacterAnimationController extends THREE.EventDispatcher 
 
     this.actions.shoot.loop = THREE.LoopOnce;
     this.actions.shoot.clampWhenFinished = true;
-    this.actions.shoot.timeScale = 1;
+    this.actions.shoot.timeScale = 1.5;
 
     this.actions.current = this.actions.idle;
 
@@ -77,7 +77,7 @@ export default class CharacterAnimationController extends THREE.EventDispatcher 
 
     newAction.reset();
     newAction.play();
-    newAction.crossFadeFrom(oldAction, 0.2);
+    newAction.crossFadeFrom(oldAction, 0.1);
 
     this.actions.current = newAction;
     this.currentName = safeName;

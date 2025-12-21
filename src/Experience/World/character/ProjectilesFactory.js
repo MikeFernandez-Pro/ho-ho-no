@@ -4,7 +4,7 @@ import Experience from "#experience/Experience.js";
 
 const PROJECTILE_SIZE = 0.4;
 const PROJECTILE_COLLIDER_SIZE = PROJECTILE_SIZE * 0.5;
-const PROJECTILE_SPEED = 20;
+const PROJECTILE_SPEED = 50;
 const PROJECTILE_MAX_DISTANCE = 50;
 
 const SHOOT_OFFSET_LOCAL = new THREE.Vector3(-0.253, 0.596, 0.719);
