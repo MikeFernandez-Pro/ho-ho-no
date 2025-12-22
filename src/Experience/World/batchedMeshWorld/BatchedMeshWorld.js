@@ -44,6 +44,7 @@ export default class BatchedMeshWorld {
       this.material
     );
     this.batchedMesh.castShadow = true;
+    this.batchedMesh.receiveShadow = true;
 
     this.scene.add(this.batchedMesh);
   };

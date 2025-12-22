@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import Experience from "#experience/Experience.js";
+import CustomShaderMaterial from "three-custom-shader-material/vanilla";
 
 export default class Floor {
   constructor() {
@@ -15,15 +16,16 @@ export default class Floor {
 
     this.floor = new THREE.Mesh(
       new THREE.PlaneGeometry(300, 300),
-      new THREE.ShaderMaterial({
+      new CustomShaderMaterial({
+        baseMaterial: THREE.MeshStandardMaterial,
         vertexShader: `
        varying vec2 vUv;
 
         void main() {
           vUv = uv;
         
-          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-        }
+
+          }
         `,
         fragmentShader: `
         uniform sampler2D uNoiseTexture;
@@ -56,9 +58,9 @@ export default class Floor {
 
   
             
-          gl_FragColor = vec4(color, 1.0);
-          #include <tonemapping_fragment>
-          #include <colorspace_fragment>        
+          csm_DiffuseColor = vec4(color, 1.0);
+            
+                
         }
         `,
         uniforms: {

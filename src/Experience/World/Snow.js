@@ -16,9 +16,9 @@ export default class Snow {
     this.character = this.experience.world.character;
     this.debug = this.experience.debug;
 
-    this.count = 500;
+    this.count = 1000;
     this.speed = 0.1;
-    this.size = 0.025;
+    this.size = 0.02;
 
     this.smoothedVelocity = new THREE.Vector3();
     this.targetVelocity = new THREE.Vector3();
@@ -37,8 +37,8 @@ export default class Snow {
     for (let i = 0; i < this.count; i++) {
       const i3 = i * 3;
 
-      positionsArray[i3] = Math.random() - 0.5;
-      positionsArray[i3 + 1] = (Math.random() - 0.5) * 2;
+      positionsArray[i3] = (Math.random() - 0.5) * 2;
+      positionsArray[i3 + 1] = (Math.random() - 0.5) * 4;
       positionsArray[i3 + 2] = -0.5;
 
       scaleArray[i] = Math.random();
