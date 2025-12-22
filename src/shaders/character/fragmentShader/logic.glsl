@@ -22,3 +22,4 @@ float fresnel = pow(1.0 - VoN, uFresnelPower);
 
 vec3 lighting = ambient + hemi * (fresnel + uFresnelImpact) + diffuse * 0.8;
 diffuseColor.rgb *= lighting;
+
