@@ -6,7 +6,11 @@ import CharacterAnimationController from "./CharacterAnimationController.js";
 import CharacterController from "./CharacterController.js";
 import ProjectilesFactory from "./ProjectilesFactory.js";
 
-import CustomShaderMaterial from "three-custom-shader-material/vanilla";
+import declarationsVertexShaderChunk from "#shaders/character/vertexShader/declarations.glsl?raw";
+import logicVertexShaderChunk from "#shaders/character/vertexShader/logic.glsl?raw";
+import declarationsFragmentShaderChunk from "#shaders/character/fragmentShader/declarations.glsl?raw";
+import logicFragmentShaderChunk from "#shaders/character/fragmentShader/logic.glsl?raw";
+
 export default class Character {
   constructor() {
     this.experience = new Experience();
@@ -51,115 +55,86 @@ export default class Character {
       fresnelImpact: 0.2,
     };
 
-    this.material = new CustomShaderMaterial({
-      baseMaterial: new THREE.MeshBasicMaterial({
-        map: this.gradientTexture,
-      }),
-      uniforms: {
-        uAmbiantIntensity: { value: parameters.ambiantIntensity },
-        uSkyColor: {
-          value: new THREE.Color(
-            parameters.skyColor.r,
-            parameters.skyColor.g,
-            parameters.skyColor.b
-          ),
-        },
-        uGroundColor: {
-          value: new THREE.Color(
-            parameters.groundColor.r,
-            parameters.groundColor.g,
-            parameters.groundColor.b
-          ),
-        },
-        uLightDirection: {
-          value: new THREE.Vector3(
-            parameters.lightDirection.x,
-            parameters.lightDirection.y,
-            parameters.lightDirection.z
-          ),
-        },
-        uLightColor: {
-          value: new THREE.Color(
-            parameters.lightColor.r,
-            parameters.lightColor.g,
-            parameters.lightColor.b
-          ),
-        },
-        uFresnelPower: { value: parameters.fresnelPower },
-        uFresnelImpact: { value: parameters.fresnelImpact },
+    const uniforms = {
+      uAmbiantIntensity: { value: parameters.ambiantIntensity },
+      uSkyColor: {
+        value: new THREE.Color(
+          parameters.skyColor.r,
+          parameters.skyColor.g,
+          parameters.skyColor.b
+        ),
       },
-      vertexShader: /* glsl */ ` 
-      varying vec3 vCustomNormal;
-      varying vec3 vCustomPosition;
+      uGroundColor: {
+        value: new THREE.Color(
+          parameters.groundColor.r,
+          parameters.groundColor.g,
+          parameters.groundColor.b
+        ),
+      },
+      uLightDirection: {
+        value: new THREE.Vector3(
+          parameters.lightDirection.x,
+          parameters.lightDirection.y,
+          parameters.lightDirection.z
+        ),
+      },
+      uLightColor: {
+        value: new THREE.Color(
+          parameters.lightColor.r,
+          parameters.lightColor.g,
+          parameters.lightColor.b
+        ),
+      },
+      uFresnelPower: { value: parameters.fresnelPower },
+      uFresnelImpact: { value: parameters.fresnelImpact },
+    };
 
-    varying vec2 vUv;
-    void main() {
-      vUv = uv;
-        
-vCustomNormal = normalize(mat3(transpose(inverse(modelMatrix))) * normal);
-vCustomPosition = (modelMatrix * vec4(position, 1.0)).xyz; 
-   
-    } 
-     `,
-      fragmentShader: /* glsl */ `
-
-    uniform float uAmbiantIntensity;
-    uniform vec3 uSkyColor;
-    uniform vec3 uGroundColor;
-    uniform vec3 uLightDirection;
-    uniform vec3 uLightColor;
-    uniform float uFresnelPower;
-    uniform float uFresnelImpact;
-    
-    varying vec2 vUv;
-    varying vec3 vCustomNormal;
-    varying vec3 vCustomPosition;
-   
-
-    float remap(float value, float from1, float to1, float from2, float to2) {
-        return from2 + (value - from1) * (to2 - from2) / (to1 - from1);
-    }
-
-    void main() {
-
-        vec3 normal = normalize(vCustomNormal);
-        vec3 viewDirection = normalize(  cameraPosition - vCustomPosition);
-
-    // Ambient
-    vec3 ambient = vec3(uAmbiantIntensity);
-            
-    // Hemi
-    vec3 skyColor = vec3(uSkyColor);
-    vec3 groundColor = vec3(uGroundColor);
-
-    vec3 hemi = mix(groundColor, skyColor, remap(normal.y, -1.0, 1.0, 0.0, 1.0));
-
-    // Diffuse Lighting
-    vec3 lightDir = normalize(vec3(uLightDirection));
-          vec3 lightColor = vec3(uLightColor);
-          float dp = max(0.0, dot(lightDir, normal));
-       
-    // Toon
-    dp*= smoothstep(0.5 , 0.505 , dp );
-
-
-    vec3 diffuse = dp * lightColor;
-
-    // Fresnel
-    float VoN = max(dot(viewDirection, normal), 0.0);
-  float fresnel = pow(1.0 - VoN, uFresnelPower); 
-          
-
-    vec3 lighting = ambient +  hemi * (fresnel + uFresnelImpact)  + diffuse  * 0.8;
-
-    vec3 modelColor = csm_DiffuseColor.rgb;
-
-    vec3 color = modelColor * lighting  ;
-
-    csm_DiffuseColor = vec4((color), 1.0);
-  }
-     `,
+    this.material = new THREE.MeshBasicMaterial({
+      map: this.gradientTexture,
     });
+
+    // Keep the same external API you were using with CustomShaderMaterial
+    // (your debug UI reads/writes `this.material.uniforms.*`).
+    this.material.uniforms = uniforms;
+
+    this.material.onBeforeCompile = (shader) => {
+      // Hook our uniforms into the program uniforms
+      shader.uniforms.uAmbiantIntensity = uniforms.uAmbiantIntensity;
+      shader.uniforms.uSkyColor = uniforms.uSkyColor;
+      shader.uniforms.uGroundColor = uniforms.uGroundColor;
+      shader.uniforms.uLightDirection = uniforms.uLightDirection;
+      shader.uniforms.uLightColor = uniforms.uLightColor;
+      shader.uniforms.uFresnelPower = uniforms.uFresnelPower;
+      shader.uniforms.uFresnelImpact = uniforms.uFresnelImpact;
+
+      // Vertex: add varyings and compute world normal/position (works with skinning/morphs).
+      shader.vertexShader = shader.vertexShader.replace(
+        "#include <common>",
+        declarationsVertexShaderChunk
+      );
+
+      shader.vertexShader = shader.vertexShader.replace(
+        "#include <project_vertex>",
+        logicVertexShaderChunk
+      );
+
+      // Fragment: declare uniforms/varyings and multiply final diffuseColor.rgb (after the map is applied).
+      shader.fragmentShader = shader.fragmentShader.replace(
+        "#include <common>",
+        declarationsFragmentShaderChunk
+      );
+
+      shader.fragmentShader = shader.fragmentShader.replace(
+        "#include <map_fragment>",
+        logicFragmentShaderChunk
+      );
+
+      // Keep a handle if you ever want to inspect shader code/uniforms at runtime
+      this.material.userData.shader = shader;
+    };
+
+    // Ensure onBeforeCompile runs at least once on next render
+    this.material.needsUpdate = true;
 
     if (this.debug.active) {
       const applyLightDirection = () => {
@@ -261,8 +236,8 @@ vCustomPosition = (modelMatrix * vec4(position, 1.0)).xyz;
 
     this.characterScene.traverse((child) => {
       if (child instanceof THREE.Mesh) {
-        child.receiveShadow = true;
-        child.castShadow = true;
+        child.receiveShadow = false;
+        child.castShadow = false;
         child.material = this.material;
       }
     });
