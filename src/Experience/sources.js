@@ -22,7 +22,7 @@ export default [
   {
     name: "voronoiTexture",
     type: "texture",
-    path: "textures/voronoi.jpg",
+    path: "textures/voronoi 1.png",
   },
 
   {

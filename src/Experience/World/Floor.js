@@ -21,12 +21,14 @@ export default class Floor {
 
         void main() {
           vUv = uv;
+        
           gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
         }
         `,
         fragmentShader: `
         uniform sampler2D uNoiseTexture;
         uniform float uScale;
+           
 
         varying vec2 vUv;
     
@@ -40,12 +42,17 @@ export default class Floor {
 
             void main() {
          // Perlin Noise
-  vec2 perlinNoiseUv = vec2(vUv.x * uScale, vUv.y * uScale);
+  vec2 perlinNoiseUv = vec2(vUv.x * uScale, vUv.y * uScale);        
   float perlinNoise = texture2D(uNoiseTexture, perlinNoiseUv).r;
+
+    vec2 perlinNoiseUv2 = vec2(vUv.x * uScale, vUv.y * uScale   + 0.5);        
+  float perlinNoise2 = texture2D(uNoiseTexture, perlinNoiseUv2).r;
+
         
-  float combinedPerlinNoise =  perlinNoise ;
+  float combinedPerlinNoise =  perlinNoise + perlinNoise2   ;
 
   vec3 color = mix(uColor1, uColor2, combinedPerlinNoise);
+  
 
   
             
@@ -56,19 +63,21 @@ export default class Floor {
         `,
         uniforms: {
           uNoiseTexture: { value: this.noiseTexture },
-          uColor1: { value: new THREE.Color("#94e0ff") },
-          uColor2: { value: new THREE.Color("#6e8eb8") },
-          uScale: { value: 28.0 },
+          uColor1: { value: new THREE.Color("#d0f1ff") },
+          uColor2: { value: new THREE.Color("#9dbad2") },
+          uScale: { value: 4.0 },
         },
       })
     );
     this.floor.rotation.x = -Math.PI / 2;
+    this.floor.position.y = 0.55;
+    this.floor.receiveShadow = true;
     this.scene.add(this.floor);
 
     const parameters = {
-      color1: "#94e0ff",
-      color2: "#6e8eb8",
-      scale: 28.0,
+      color1: "#d0f1ff",
+      color2: "#9dbad2",
+      scale: 4.0,
     };
 
     this.debugFolder = this.debug.pane.addFolder({

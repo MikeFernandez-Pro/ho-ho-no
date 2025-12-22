@@ -10,8 +10,8 @@ void main()
     vec3 color = uColor;    
     color *= circle;
 
-    float opacity = 1.0 - vOpacity - 0.2;
-    opacity = max(0.0, opacity);
+    float opacity = 1.0 - vOpacity + 0.4;
+    opacity = min(1.0, opacity);
     
     float alpha = circle * opacity;
 
@@ -19,4 +19,4 @@ void main()
     gl_FragColor = vec4(color, alpha);
     #include <tonemapping_fragment>
     #include <colorspace_fragment>
-}   
+}       
