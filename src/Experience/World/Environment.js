@@ -10,12 +10,13 @@ export default class Environment {
 
     // Debug
     if (this.debug.active) {
-      this.debugFolder = this.debug.ui.addFolder("environment");
+      this.debugFolder = this.debug.pane.addFolder({
+        title: "lighting",
+        expanded: false,
+      });
     }
 
     this.setSunLight();
-    this.setAmbientLight();
-    this.setEnvironmentMap();
     this.setFog(); //
   }
 
@@ -30,94 +31,72 @@ export default class Environment {
     this.sunLight.shadow.camera.bottom = -35;
     this.sunLight.shadow.mapSize.set(2048, 2048);
     this.sunLight.shadow.normalBias = 0.2;
-    this.sunLight.position.set(90.5, 50, -30.5);
+    this.sunLight.position.set(10, 10, 10);
     this.scene.add(this.sunLight);
 
     // Debug
     if (this.debug.active) {
-      this.debugFolder
-        .add(this.sunLight, "intensity")
-        .name("sunLightIntensity")
-        .min(0)
-        .max(10)
-        .step(0.001);
+      const parameters = {
+        intensity: 2.5,
+        position: {
+          x: 10,
+          y: 10,
+          z: 10,
+        },
+        shadow: {
+          normalBias: 0.2,
+        },
+      };
 
       this.debugFolder
-        .add(this.sunLight.position, "x")
-        .name("sunLightX")
-        .min(-5)
-        .max(5)
-        .step(0.001);
+        .addBinding(parameters, "intensity", {
+          min: 0,
+          max: 10,
+          step: 0.001,
+        })
+        .on("change", (ev) => {
+          this.sunLight.intensity = ev.value;
+        });
 
       this.debugFolder
-        .add(this.sunLight.position, "y")
-        .name("sunLightY")
-        .min(-5)
-        .max(5)
-        .step(0.001);
+        .addBinding(parameters.position, "x", {
+          min: -5,
+          max: 5,
+          step: 0.001,
+        })
+        .on("change", (ev) => {
+          this.sunLight.position.x = ev.value;
+        });
 
       this.debugFolder
-        .add(this.sunLight.position, "z")
-        .name("sunLightZ")
-        .min(-5)
-        .max(5)
-        .step(0.001);
+        .addBinding(parameters.position, "y", {
+          min: -5,
+          max: 5,
+          step: 0.001,
+        })
+        .on("change", (ev) => {
+          this.sunLight.position.y = ev.value;
+        });
 
       this.debugFolder
-        .add(this.sunLight.shadow, "normalBias")
-        .name("sunLightShadowNormalBias")
-        .min(-0.2)
-        .max(0.2)
-        .step(0.001);
-    }
-  }
+        .addBinding(parameters.position, "z", {
+          min: -5,
+          max: 5,
+          step: 0.001,
+        })
+        .on("change", (ev) => {
+          this.sunLight.position.z = ev.value;
+        });
 
-  setAmbientLight() {
-    this.ambientLight = new THREE.AmbientLight("#ffffff", 17);
-    this.scene.add(this.ambientLight);
-
-    if (this.debug.active) {
       this.debugFolder
-        .add(this.ambientLight, "intensity")
-        .name("ambientLightIntensity")
-        .min(0)
-        .max(15)
-        .step(0.001);
-    }
-  }
-
-  setEnvironmentMap() {
-    this.environmentMap = {};
-    this.environmentMap.intensity = 0.5;
-    this.environmentMap.texture = this.resources.items.environmentMapTexture;
-    this.environmentMap.texture.colorSpace = THREE.SRGBColorSpace;
-
-    this.scene.environment = this.environmentMap.texture;
-    this.scene.environmentIntensity = this.environmentMap.intensity;
-
-    this.environmentMap.updateMaterials = () => {
-      this.scene.traverse((child) => {
-        if (
-          child instanceof THREE.Mesh &&
-          child.material instanceof THREE.MeshStandardMaterial
-        ) {
-          child.material.envMap = this.environmentMap.texture;
-          child.material.envMapIntensity = this.environmentMap.intensity;
-          child.material.needsUpdate = true;
-        }
-      });
-    };
-    this.environmentMap.updateMaterials();
-
-    // Debug
-    if (this.debug.active) {
-      this.debugFolder
-        .add(this.environmentMap, "intensity")
-        .name("envMapIntensity")
-        .min(0)
-        .max(4)
-        .step(0.001)
-        .onChange(this.environmentMap.updateMaterials);
+        .addBinding(parameters.shadow, "normalBias", {
+          min: -0.2,
+          max: 0.2,
+          step: 0.001,
+        })
+        .on("change", (ev) => {
+          this.sunLight.shadow.normalBias = ev.value;
+        });
     }
   }
 

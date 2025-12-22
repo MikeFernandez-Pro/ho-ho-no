@@ -1,14 +1,11 @@
-import GUI from 'lil-gui'
+import { Pane } from "tweakpane";
 
-export default class Debug
-{
-    constructor()
-    {
-        this.active = window.location.hash === '#debug'
+export default class Debug {
+  constructor() {
+    this.active = window.location.hash === "#debug";
 
-        if(this.active)
-        {
-            this.ui = new GUI()
-        }
+    if (this.active) {
+      this.pane = new Pane();
     }
+  }
 }

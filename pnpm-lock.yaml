@@ -20,9 +20,15 @@ importers:
       three:
         specifier: 0.182.0
         version: 0.182.0
+      three-custom-shader-material:
+        specifier: ^6.4.0
+        version: 6.4.0(three@0.182.0)
       three-perf:
         specifier: ^1.0.11
         version: 1.0.11(three@0.182.0)
+      tweakpane:
+        specifier: ^4.0.5
+        version: 4.0.5
       vite-plugin-wasm:
         specifier: ^3.5.0
         version: 3.5.0(vite@5.4.21)
@@ -354,6 +360,18 @@ packages:
     resolution: {integrity: sha512-UXWMKhLOwVKb728IUtQPXxfYU+usdybtUrK/8uGE8CQMvrhOpwvzDBwj0QhSL7MQc7vIsISBG8VQ8+IDQxpfQA==}
     engines: {node: '>=0.10.0'}
 
+  three-custom-shader-material@6.4.0:
+    resolution: {integrity: sha512-dIbkwX1P4DcHMOZrywW+/TDp5qJhlyU6NP/2kmHw91UqC+TrK4JSBtAV3qGc6UnkqSOmR1i0O+Yz5EnTp2aQ1g==}
+    peerDependencies:
+      '@react-three/fiber': '>=8.0'
+      react: '>=18.0'
+      three: '>=0.159'
+    peerDependenciesMeta:
+      '@react-three/fiber':
+        optional: true
+      react:
+        optional: true
+
   three-perf@1.0.11:
     resolution: {integrity: sha512-OgBpZjwL+csQKGKZjpkH/QHdbGFMxqngMbSEJeSnVNfXDYd6On7WHNv/GhUZH4YxIpNMwMahBWrNnsJvnbSJHQ==}
     peerDependencies:
@@ -381,6 +399,9 @@ packages:
 
   tweakpane@3.1.10:
     resolution: {integrity: sha512-rqwnl/pUa7+inhI2E9ayGTqqP0EPOOn/wVvSWjZsRbZUItzNShny7pzwL3hVlaN4m9t/aZhsP0aFQ9U5VVR2VQ==}
+
+  tweakpane@4.0.5:
+    resolution: {integrity: sha512-rxEXdSI+ArlG1RyO6FghC4ZUX8JkEfz8F3v1JuteXSV0pEtHJzyo07fcDG+NsJfN5L39kSbCYbB9cBGHyuI/tQ==}
 
   vite-plugin-restart@0.4.2:
     resolution: {integrity: sha512-9aWN2ScJ8hbT7aC8SDeZnsbWapnslz1vhNq6Vgf2GU9WdN4NExlrWhtnu7pmtOUG3Guj8y6lPcUZ+ls7SVP33w==}
@@ -663,6 +684,10 @@ snapshots:
 
   source-map-js@1.2.1: {}
 
+  three-custom-shader-material@6.4.0(three@0.182.0):
+    dependencies:
+      three: 0.182.0
+
   three-perf@1.0.11(three@0.182.0):
     dependencies:
       three: 0.182.0
@@ -690,6 +715,8 @@ snapshots:
   troika-worker-utils@0.52.0: {}
 
   tweakpane@3.1.10: {}
+
+  tweakpane@4.0.5: {}
 
   vite-plugin-restart@0.4.2(vite@5.4.21):
     dependencies:
