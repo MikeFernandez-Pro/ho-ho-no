@@ -20,8 +20,8 @@ export default class Postprocessing {
     });
 
     this.effectComposer = new EffectComposer(
-      this.renderer.instance,
-      this.renderTarget
+      this.renderer.instance
+      // this.renderTarget
     );
     this.effectComposer.setSize(this.sizes.width, this.sizes.height);
     this.effectComposer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -33,15 +33,15 @@ export default class Postprocessing {
     this.effectComposer.addPass(this.vignettePass);
 
     // Anti-aliasing (operate in linear space before tone mapping / output conversion)
-    if (
-      this.renderer.instance.getPixelRatio() === 1 &&
-      !this.renderer.instance.capabilities.isWebGL2
-    ) {
-      const smaaPass = new SMAAPass();
-      this.effectComposer.addPass(smaaPass);
+    // if (
+    //   this.renderer.instance.getPixelRatio() === 1 &&
+    //   !this.renderer.instance.capabilities.isWebGL2
+    // ) {
+    //   const smaaPass = new SMAAPass();
+    //   this.effectComposer.addPass(smaaPass);
 
-      console.log("Using SMAA");
-    }
+    //   console.log("Using SMAA");
+    // }
 
     // Final output: tone mapping + output color space conversion
     this.outputPass = new OutputPass();
