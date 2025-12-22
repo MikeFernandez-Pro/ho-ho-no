@@ -1,4 +1,4 @@
-#include <map_fragment>
+    #include <map_fragment>
 
 vec3 normal = normalize(vCustomNormal);
 vec3 viewDirection = normalize(cameraPosition - vCustomPosition);
@@ -23,3 +23,13 @@ float fresnel = pow(1.0 - VoN, uFresnelPower);
 vec3 lighting = ambient + hemi * (fresnel + uFresnelImpact) + diffuse * 0.8;
 diffuseColor.rgb *= lighting;
 
+// Fake AO: darken surfaces facing downward (approximate ambient occlusion)
+float underside = clamp(-normal.y, 0.0, 1.0);
+float aoPow = max(uFakeAOPower, 0.0001);
+float fakeAO = mix(1.0, 1.0 - uFakeAOIntensity, pow(underside, aoPow));
+fakeAO  *= smoothstep(0.5, 0.505    , fakeAO);
+fakeAO = clamp(0.0, 1.0, fakeAO + 0.2);
+        
+diffuseColor.rgb *= fakeAO;
+    
+        

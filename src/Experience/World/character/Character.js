@@ -53,6 +53,8 @@ export default class Character {
       lightColor: { r: 1.0, g: 1.0, b: 0.9 },
       fresnelPower: 5.0,
       fresnelImpact: 0.2,
+      fakeAOIntensity: 1,
+      fakeAOPower: 0.5,
     };
 
     const uniforms = {
@@ -87,6 +89,8 @@ export default class Character {
       },
       uFresnelPower: { value: parameters.fresnelPower },
       uFresnelImpact: { value: parameters.fresnelImpact },
+      uFakeAOIntensity: { value: parameters.fakeAOIntensity },
+      uFakeAOPower: { value: parameters.fakeAOPower },
     };
 
     this.material = new THREE.MeshBasicMaterial({
@@ -106,6 +110,8 @@ export default class Character {
       shader.uniforms.uLightColor = uniforms.uLightColor;
       shader.uniforms.uFresnelPower = uniforms.uFresnelPower;
       shader.uniforms.uFresnelImpact = uniforms.uFresnelImpact;
+      shader.uniforms.uFakeAOIntensity = uniforms.uFakeAOIntensity;
+      shader.uniforms.uFakeAOPower = uniforms.uFakeAOPower;
 
       // Vertex: add varyings and compute world normal/position (works with skinning/morphs).
       shader.vertexShader = shader.vertexShader.replace(
@@ -231,6 +237,26 @@ export default class Character {
         .addBinding(parameters, "fresnelImpact")
         .on("change", (ev) => {
           this.material.uniforms.uFresnelImpact.value = ev.value;
+        });
+
+      this.debugFolder
+        .addBinding(parameters, "fakeAOIntensity", {
+          min: 0,
+          max: 1,
+          step: 0.001,
+        })
+        .on("change", (ev) => {
+          this.material.uniforms.uFakeAOIntensity.value = ev.value;
+        });
+
+      this.debugFolder
+        .addBinding(parameters, "fakeAOPower", {
+          min: 0.1,
+          max: 4,
+          step: 0.001,
+        })
+        .on("change", (ev) => {
+          this.material.uniforms.uFakeAOPower.value = ev.value;
         });
     }
 

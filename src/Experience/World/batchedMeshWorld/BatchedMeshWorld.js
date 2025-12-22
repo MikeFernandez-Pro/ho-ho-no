@@ -62,6 +62,8 @@ export default class BatchedMeshWorld {
       lightColor: { r: 1.0, g: 1.0, b: 0.9 },
       fresnelPower: 5.0,
       fresnelImpact: 0.2,
+      fakeAOIntensity: 1,
+      fakeAOPower: 0.7,
     };
 
     this.uniforms = {
@@ -99,6 +101,8 @@ export default class BatchedMeshWorld {
       },
       uFresnelPower: { value: parameters.fresnelPower },
       uFresnelImpact: { value: parameters.fresnelImpact },
+      uFakeAOIntensity: { value: parameters.fakeAOIntensity },
+      uFakeAOPower: { value: parameters.fakeAOPower },
     };
 
     // Keep the same external API pattern as Character.js
@@ -129,6 +133,8 @@ export default class BatchedMeshWorld {
       shader.uniforms.uLightColor = this.uniforms.uLightColor;
       shader.uniforms.uFresnelPower = this.uniforms.uFresnelPower;
       shader.uniforms.uFresnelImpact = this.uniforms.uFresnelImpact;
+      shader.uniforms.uFakeAOIntensity = this.uniforms.uFakeAOIntensity;
+      shader.uniforms.uFakeAOPower = this.uniforms.uFakeAOPower;
       // Object.assign(shader.uniforms, this.santaClous.uniforms);
 
       shader.vertexShader = shader.vertexShader.replace(

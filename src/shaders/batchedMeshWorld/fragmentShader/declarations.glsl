@@ -6,6 +6,8 @@ uniform vec3 uLightDirection;
 uniform vec3 uLightColor;
 uniform float uFresnelPower;
 uniform float uFresnelImpact;
+uniform float uFakeAOIntensity;   // 0..1, how much to darken undersides
+uniform float uFakeAOPower;       // >0, controls the falloff of AO from underside  
 
 varying vec3 vCustomNormal;
 varying vec3 vCustomPosition;
