@@ -68,7 +68,7 @@ export default class Floor {
     const parameters = {
       color1: "#94e0ff",
       color2: "#6e8eb8",
-      scale: 28qaq.0,
+      scale: 28.0,
     };
 
     this.debugFolder = this.debug.pane.addFolder({
