@@ -9,21 +9,19 @@ export default class Camp {
     this.scene = this.experience.scene;
     this.resources = this.experience.resources;
     this.physics = this.experience.physics;
+    this.batchedMeshWorld = this.experience.world.batchedMeshWorld;
 
     this.gradientTexture = this.resources.items.gradientTexture;
 
     this.campScene = this.resources.items.campModel.scene;
-    this.campScene.position.y = 0.5;
+    const campGeometry = this.campScene.children[0].geometry;
 
-    this.campScene.traverse((child) => {
-      if (child instanceof THREE.Mesh) {
-        child.receiveShadow = true;
-        child.castShadow = true;
-        child.material.map = this.gradientTexture;
-      }
-    });
+    this.campGeometryId =
+      this.batchedMeshWorld.batchedMesh.addGeometry(campGeometry);
 
-    this.scene.add(this.campScene);
+    this.campInstance = this.batchedMeshWorld.batchedMesh.addInstance(
+      this.campGeometryId
+    );
 
     // Create a dynamic rigid-body.
     let rigidBodyDesc = RAPIER.RigidBodyDesc.fixed().setTranslation(

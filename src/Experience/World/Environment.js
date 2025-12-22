@@ -17,7 +17,6 @@ export default class Environment {
     }
 
     this.setSunLight();
-    this.setFog(); //
   }
 
   setSunLight() {
@@ -33,6 +32,9 @@ export default class Environment {
     this.sunLight.shadow.normalBias = 0.2;
     this.sunLight.position.set(10, 10, 10);
     this.scene.add(this.sunLight);
+
+    const cameraHelper = new THREE.CameraHelper(this.sunLight.shadow.camera);
+    this.scene.add(cameraHelper);
 
     // Debug
     if (this.debug.active) {
@@ -98,9 +100,5 @@ export default class Environment {
           this.sunLight.shadow.normalBias = ev.value;
         });
     }
-  }
-
-  setFog() {
-    this.scene.fog = new THREE.Fog("#cbe1f7", 20, 50);
   }
 }

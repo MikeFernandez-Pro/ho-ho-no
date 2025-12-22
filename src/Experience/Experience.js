@@ -10,6 +10,7 @@ import Resources from "#utils/Resources.js";
 import Perf from "#utils/Perf.js";
 import sources from "#experience/sources.js";
 import Physics from "#utils/physics.js";
+import Postprocessing from "#experience/postprocessing/postprocessing.js";
 // import PhysicsDebug from "#utils/physicsDebug.js";
 
 let instance = null;
@@ -36,6 +37,7 @@ export default class Experience {
     this.resources = new Resources(sources);
     this.camera = new Camera();
     this.renderer = new Renderer();
+    this.postprocessing = new Postprocessing();
     this.perf = new Perf();
     this.physics = new Physics();
     // this.physicsDebug = new PhysicsDebug();
@@ -51,6 +53,7 @@ export default class Experience {
   resize = () => {
     this.camera.resize();
     this.renderer.resize();
+    this.postprocessing.resize();
   };
 
   update = () => {
@@ -58,7 +61,7 @@ export default class Experience {
     this.world.update();
     this.physics.update();
     // this.physicsDebug.update();
-    this.renderer.update();
+    this.postprocessing.update();
   };
 
   destroy() {

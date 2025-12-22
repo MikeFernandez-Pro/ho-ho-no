@@ -8,6 +8,7 @@ export default class Renderer {
     this.sizes = this.experience.sizes;
     this.scene = this.experience.scene;
     this.camera = this.experience.camera;
+    this.postprocessing = this.experience.postprocessing;
 
     this.setInstance();
   }
@@ -31,17 +32,5 @@ export default class Renderer {
     this.instance.setPixelRatio(this.sizes.pixelRatio);
   }
 
-  update() {
-    const perf = this.experience.perf;
-
-    if (perf) {
-      perf.panel.begin();
-    }
-
-    this.instance.render(this.scene, this.camera.instance);
-
-    if (perf) {
-      perf.panel.end();
-    }
-  }
+  update() {}
 }

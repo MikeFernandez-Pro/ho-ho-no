@@ -22,10 +22,11 @@ export default class World {
   resourcesReadyEventHandler = () => {
     // Setup
     this.environment = new Environment();
-    this.camp = new Camp();
+
     //this.toySoldier = new ToySoldier();
     this.batchedMeshWorld = new BatchedMeshWorld();
     this.character = new Character();
+    this.camp = new Camp();
     //this.enemy = new Enemy();
     //this.enemyInstanced = new EnemyInstanced();
     // this.dummyTarget = new DummyTarget();

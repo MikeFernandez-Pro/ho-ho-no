@@ -263,7 +263,7 @@ export default class Character {
     this.characterScene.traverse((child) => {
       if (child instanceof THREE.Mesh) {
         child.receiveShadow = false;
-        child.castShadow = false;
+        child.castShadow = true;
         child.material = this.material;
       }
     });
