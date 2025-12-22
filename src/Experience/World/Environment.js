@@ -33,9 +33,6 @@ export default class Environment {
     this.sunLight.position.set(10, 10, 10);
     this.scene.add(this.sunLight);
 
-    const cameraHelper = new THREE.CameraHelper(this.sunLight.shadow.camera);
-    this.scene.add(cameraHelper);
-
     // Debug
     if (this.debug.active) {
       const parameters = {

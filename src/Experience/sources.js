@@ -15,6 +15,17 @@ export default [
     path: "textures/toySoldierCheeringVAT.png",
   },
   {
+    name: "noiseTexture",
+    type: "texture",
+    path: "textures/noise.png",
+  },
+  {
+    name: "voronoiTexture",
+    type: "texture",
+    path: "textures/voronoi.jpg",
+  },
+
+  {
     name: "SantaClousIdleVatTextureExr",
     type: "exrTexture",
     path: "textures/vat/santaClous/idle.exr",

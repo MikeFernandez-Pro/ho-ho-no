@@ -23,6 +23,13 @@ export default class Camp {
       this.campGeometryId
     );
 
+    const campMatrix = new THREE.Matrix4();
+    campMatrix.setPosition(new THREE.Vector3(0.0, 0.5, 0.0));
+    this.batchedMeshWorld.batchedMesh.setMatrixAt(
+      this.campInstance,
+      campMatrix
+    );
+
     // Create a dynamic rigid-body.
     let rigidBodyDesc = RAPIER.RigidBodyDesc.fixed().setTranslation(
       0.0,

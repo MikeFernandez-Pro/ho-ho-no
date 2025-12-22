@@ -9,6 +9,8 @@ import Enemy from "#world/enemy/Enemy.js";
 import EnemyInstanced from "#world/enemy/EnemyInstanced.js";
 import DummyTarget from "#world/DummyTarget.js";
 import TestEnemy from "#world/batchedMeshWorld/TestEnemy.js";
+import Snow from "#world/Snow.js";
+import Floor from "#world/Floor.js";
 export default class World {
   constructor() {
     this.experience = new Experience();
@@ -27,6 +29,8 @@ export default class World {
     this.batchedMeshWorld = new BatchedMeshWorld();
     this.character = new Character();
     this.camp = new Camp();
+    this.snow = new Snow();
+    this.floor = new Floor();
     //this.enemy = new Enemy();
     //this.enemyInstanced = new EnemyInstanced();
     // this.dummyTarget = new DummyTarget();
@@ -55,6 +59,10 @@ export default class World {
 
     if (this.batchedMeshWorld) {
       this.batchedMeshWorld.update();
+    }
+
+    if (this.snow) {
+      this.snow.update();
     }
   }
 

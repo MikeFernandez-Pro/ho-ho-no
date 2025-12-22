@@ -2,7 +2,7 @@ import * as THREE from "three";
 import Experience from "#experience/Experience.js";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
-const FOLLOW_LERP = 0.03; // 0..1 (higher = snappier)
+const FOLLOW_LERP = 0.05; // 0..1 (higher = snappier)
 
 export default class Camera {
   constructor() {
