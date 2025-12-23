@@ -42,5 +42,15 @@ export default class Camp {
     // Create the ground
     let groundColliderDesc = RAPIER.ColliderDesc.cuboid(100, 0.5, 100);
     this.experience.physics.world.createCollider(groundColliderDesc, rigidBody);
+
+    // Create the arena collider
+    this.arenaCollider = this.resources.items.arenaColliderModel;
+    this.arenaColliderGeometry = this.arenaCollider.scene.children[0].geometry;
+
+    let arenaColliderDesc = RAPIER.ColliderDesc.trimesh(
+      this.arenaColliderGeometry.attributes.position.array,
+      this.arenaColliderGeometry.index.array
+    );
+    this.experience.physics.world.createCollider(arenaColliderDesc, rigidBody);
   }
 }

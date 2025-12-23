@@ -24,6 +24,16 @@ export default [
     type: "texture",
     path: "textures/voronoi 1.png",
   },
+  {
+    name: "threeToneTexture",
+    type: "texture",
+    path: "textures/threeTone.jpg",
+  },
+  {
+    name: "fiveToneTexture",
+    type: "texture",
+    path: "textures/fiveTone.jpg",
+  },
 
   {
     name: "SantaClousIdleVatTextureExr",
@@ -99,5 +109,10 @@ export default [
     name: "enemyModel",
     type: "gltfModel",
     path: "models/enemy.glb",
+  },
+  {
+    name: "arenaColliderModel",
+    type: "gltfModel",
+    path: "models/arenaCollider.glb",
   },
 ];

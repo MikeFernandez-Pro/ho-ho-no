@@ -16,8 +16,8 @@ export default class Snow {
     this.character = this.experience.world.character;
     this.debug = this.experience.debug;
 
-    this.count = 1000;
-    this.speed = 0.1;
+    this.count = 600;
+    this.speed = 0.15;
     this.size = 0.02;
 
     this.smoothedVelocity = new THREE.Vector3();

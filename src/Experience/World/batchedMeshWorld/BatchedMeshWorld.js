@@ -16,23 +16,40 @@ export default class BatchedMeshWorld {
     this.resources = this.experience.resources;
     this.time = this.experience.time;
 
-    this.setBaseColorTexture();
+    this.setTextures();
     this.setMaterial();
     this.setBatchedMesh();
     this.setInstances();
     this.setShadersConfig();
   }
 
-  setBaseColorTexture = () => {
+  setTextures = () => {
     this.gradientTexture = this.resources.items.gradientTexture;
     this.gradientTexture.colorSpace = THREE.SRGBColorSpace;
     this.gradientTexture.flipY = false;
+
+    this.threeToneTexture = this.resources.items.threeToneTexture;
+    this.threeToneTexture.colorSpace = THREE.SRGBColorSpace;
+    this.threeToneTexture.flipY = false;
+    this.threeToneTexture.minFilter = THREE.NearestFilter;
+    this.threeToneTexture.magFilter = THREE.NearestFilter;
+    this.threeToneTexture.wrapS = THREE.ClampToEdgeWrapping;
+    this.threeToneTexture.wrapT = THREE.ClampToEdgeWrapping;
+
+    this.fiveToneTexture = this.resources.items.fiveToneTexture;
+    this.fiveToneTexture.colorSpace = THREE.SRGBColorSpace;
+    this.fiveToneTexture.flipY = false;
+    this.fiveToneTexture.minFilter = THREE.NearestFilter;
+    this.fiveToneTexture.magFilter = THREE.NearestFilter;
+    this.fiveToneTexture.wrapS = THREE.ClampToEdgeWrapping;
+    this.fiveToneTexture.wrapT = THREE.ClampToEdgeWrapping;
   };
 
   setMaterial = () => {
-    // Match Character.js material "style": MeshBasicMaterial + shader chunk overrides
-    this.material = new THREE.MeshBasicMaterial({
+    // Match Character Toon Material.js material "style": MeshBasicMaterial + shader chunk overrides
+    this.material = new THREE.MeshToonMaterial({
       map: this.gradientTexture,
+      gradientMap: this.fiveToneTexture,
     });
   };
 
@@ -55,55 +72,10 @@ export default class BatchedMeshWorld {
   };
 
   setShadersConfig = () => {
-    const parameters = {
-      ambiantIntensity: 0.8,
-      skyColor: { r: 0.0, g: 0.3, b: 0.6 },
-      groundColor: { r: 0.6, g: 0.3, b: 0.1 },
-      lightDirection: { x: 1.0, y: 0.0, z: 1.0 },
-      lightColor: { r: 1.0, g: 1.0, b: 0.9 },
-      fresnelPower: 5.0,
-      fresnelImpact: 0.2,
-      fakeAOIntensity: 1,
-      fakeAOPower: 0.7,
-    };
-
     this.uniforms = {
       uTime: { value: 0 },
       fps: { value: 60 },
       totalFrames: { value: 48 },
-      uAmbiantIntensity: { value: parameters.ambiantIntensity },
-      uSkyColor: {
-        value: new THREE.Color(
-          parameters.skyColor.r,
-          parameters.skyColor.g,
-          parameters.skyColor.b
-        ),
-      },
-      uGroundColor: {
-        value: new THREE.Color(
-          parameters.groundColor.r,
-          parameters.groundColor.g,
-          parameters.groundColor.b
-        ),
-      },
-      uLightDirection: {
-        value: new THREE.Vector3(
-          parameters.lightDirection.x,
-          parameters.lightDirection.y,
-          parameters.lightDirection.z
-        ),
-      },
-      uLightColor: {
-        value: new THREE.Color(
-          parameters.lightColor.r,
-          parameters.lightColor.g,
-          parameters.lightColor.b
-        ),
-      },
-      uFresnelPower: { value: parameters.fresnelPower },
-      uFresnelImpact: { value: parameters.fresnelImpact },
-      uFakeAOIntensity: { value: parameters.fakeAOIntensity },
-      uFakeAOPower: { value: parameters.fakeAOPower },
     };
 
     // Keep the same external API pattern as Character.js
@@ -127,16 +99,6 @@ export default class BatchedMeshWorld {
       // Hook our uniforms into the program uniforms (same pattern as Character.js)
       Object.assign(shader.uniforms, this.uniforms);
       Object.assign(shader.uniforms, this.testEnemy.uniforms);
-      shader.uniforms.uAmbiantIntensity = this.uniforms.uAmbiantIntensity;
-      shader.uniforms.uSkyColor = this.uniforms.uSkyColor;
-      shader.uniforms.uGroundColor = this.uniforms.uGroundColor;
-      shader.uniforms.uLightDirection = this.uniforms.uLightDirection;
-      shader.uniforms.uLightColor = this.uniforms.uLightColor;
-      shader.uniforms.uFresnelPower = this.uniforms.uFresnelPower;
-      shader.uniforms.uFresnelImpact = this.uniforms.uFresnelImpact;
-      shader.uniforms.uFakeAOIntensity = this.uniforms.uFakeAOIntensity;
-      shader.uniforms.uFakeAOPower = this.uniforms.uFakeAOPower;
-      // Object.assign(shader.uniforms, this.santaClous.uniforms);
 
       shader.vertexShader = shader.vertexShader.replace(
         "#include <common>",
@@ -147,19 +109,6 @@ export default class BatchedMeshWorld {
         "#include <project_vertex>",
         `${this.testEnemy.logicShaderChunk}\n`
       );
-
-      // Fragment: declare uniforms/varyings and multiply final diffuseColor.rgb (after the map is applied).
-      shader.fragmentShader = shader.fragmentShader.replace(
-        "#include <common>",
-        declarationsFragmentShaderChunk
-      );
-
-      shader.fragmentShader = shader.fragmentShader.replace(
-        "#include <map_fragment>",
-        logicFragmentShaderChunk
-      );
-
-      material.userData.shader = shader;
     };
   };
 

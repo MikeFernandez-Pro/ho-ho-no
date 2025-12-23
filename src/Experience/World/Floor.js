@@ -17,13 +17,13 @@ export default class Floor {
     this.floor = new THREE.Mesh(
       new THREE.PlaneGeometry(300, 300),
       new CustomShaderMaterial({
-        baseMaterial: THREE.MeshStandardMaterial,
+        baseMaterial: THREE.MeshToonMaterial,
         vertexShader: `
        varying vec2 vUv;
 
         void main() {
           vUv = uv;
-        
+          
 
           }
         `,
@@ -76,33 +76,35 @@ export default class Floor {
     this.floor.receiveShadow = true;
     this.scene.add(this.floor);
 
-    const parameters = {
-      color1: "#d0f1ff",
-      color2: "#9dbad2",
-      scale: 4.0,
-    };
+    if (this.debug.active) {
+      const parameters = {
+        color1: "#d0f1ff",
+        color2: "#9dbad2",
+        scale: 4.0,
+      };
 
-    this.debugFolder = this.debug.pane.addFolder({
-      title: "Floor",
-      expanded: false,
-    });
-
-    this.debugFolder.addBinding(parameters, "color1").on("change", (ev) => {
-      this.floor.material.uniforms.uColor1.value = new THREE.Color(ev.value);
-    });
-
-    this.debugFolder.addBinding(parameters, "color2").on("change", (ev) => {
-      this.floor.material.uniforms.uColor2.value = new THREE.Color(ev.value);
-    });
-
-    this.debugFolder
-      .addBinding(parameters, "scale", {
-        min: 0,
-        max: 100,
-        step: 0.001,
-      })
-      .on("change", (ev) => {
-        this.floor.material.uniforms.uScale.value = ev.value;
+      this.debugFolder = this.debug.pane.addFolder({
+        title: "Floor",
+        expanded: false,
       });
+
+      this.debugFolder.addBinding(parameters, "color1").on("change", (ev) => {
+        this.floor.material.uniforms.uColor1.value = new THREE.Color(ev.value);
+      });
+
+      this.debugFolder.addBinding(parameters, "color2").on("change", (ev) => {
+        this.floor.material.uniforms.uColor2.value = new THREE.Color(ev.value);
+      });
+
+      this.debugFolder
+        .addBinding(parameters, "scale", {
+          min: 0,
+          max: 100,
+          step: 0.001,
+        })
+        .on("change", (ev) => {
+          this.floor.material.uniforms.uScale.value = ev.value;
+        });
+    }
   }
 }

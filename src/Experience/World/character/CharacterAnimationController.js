@@ -90,6 +90,7 @@ export default class CharacterAnimationController extends THREE.EventDispatcher 
    */
   setMovementAnimation(isMoving) {
     this.isMoving = !!isMoving;
+
     this.applyMovementAnimation();
   }
 
