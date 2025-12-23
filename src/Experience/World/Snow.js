@@ -16,9 +16,9 @@ export default class Snow {
     this.character = this.experience.world.character;
     this.debug = this.experience.debug;
 
-    this.count = 600;
-    this.speed = 0.15;
-    this.size = 0.02;
+    this.count = 10000;
+    this.speed = 0.9;
+    this.size = 0.2;
 
     this.smoothedVelocity = new THREE.Vector3();
     this.targetVelocity = new THREE.Vector3();
@@ -37,11 +37,11 @@ export default class Snow {
     for (let i = 0; i < this.count; i++) {
       const i3 = i * 3;
 
-      positionsArray[i3] = (Math.random() - 0.5) * 2;
-      positionsArray[i3 + 1] = (Math.random() - 0.5) * 4;
-      positionsArray[i3 + 2] = -0.5;
+      positionsArray[i3] = (Math.random() - 0.5) * 90;
+      positionsArray[i3 + 1] = Math.random() * 20;
+      positionsArray[i3 + 2] = (Math.random() - 0.5) * 90;
 
-      scaleArray[i] = Math.random();
+      scaleArray[i] = Math.random() * 0.5 + 0.5;
       movementArray[i] = Math.random();
     }
 
@@ -68,9 +68,10 @@ export default class Snow {
         uSize: { value: this.size },
         uSpeed: { value: this.speed },
         uResolution: { value: this.sizes.resolution },
-        uCharacterVelocity: { value: new THREE.Vector3() },
         uTime: { value: 0 },
         uColor: { value: new THREE.Color("#ffffff") },
+        uFadeNear: { value: -21.0 },
+        uFadeFar: { value: 126.0 },
       },
       transparent: true,
       depthWrite: false,
@@ -82,6 +83,8 @@ export default class Snow {
     if (this.debug.active) {
       const parameters = {
         color: "#ffffff",
+        uFadeNear: 2.0,
+        uFadeFar: 20.0,
       };
 
       this.debugFolder = this.debug.pane.addFolder({
@@ -92,30 +95,20 @@ export default class Snow {
       this.debugFolder.addBinding(parameters, "color").on("change", (ev) => {
         this.material.uniforms.uColor.value = new THREE.Color(ev.value);
       });
+
+      this.debugFolder
+        .addBinding(parameters, "uFadeNear")
+        .on("change", (ev) => {
+          this.material.uniforms.uFadeNear.value = ev.value;
+        });
+
+      this.debugFolder.addBinding(parameters, "uFadeFar").on("change", (ev) => {
+        this.material.uniforms.uFadeFar.value = ev.value;
+      });
     }
   }
 
   update() {
     this.material.uniforms.uTime.value = this.time.elapsed;
-
-    // Read rigidbody velocity
-    const raw = this.character.characterRigidBody.linvel(); // rapier vector
-
-    this.targetVelocity.set(raw.x, raw.y, raw.z);
-
-    // Optional: normalize to [-1..1] based on your known fixed speeds
-    // If your linvel is exactly 0 or ±this.maxLinvel:
-    this.targetVelocity.divideScalar(this.maxLinvel);
-
-    // Exponential smoothing using delta time (frame-rate independent)
-    const dt = this.time.delta; // seconds
-    const t = 1.0 - Math.exp(-this.velocitySmoothing * dt);
-
-    this.smoothedVelocity.lerp(this.targetVelocity, t);
-
-    this.material.uniforms.uCharacterVelocity.value.copy(this.smoothedVelocity);
-
-    // Keep snow centered on camera
-    this.particles.position.copy(this.camera.instance.position);
   }
 }
