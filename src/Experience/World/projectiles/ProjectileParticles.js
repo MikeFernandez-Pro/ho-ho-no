@@ -17,7 +17,7 @@ export default class ProjectileParticles {
   }
 
   createProjectileParticles(position) {
-    position.y += 1;
+    position.y += 1.2;
     // Geometry
     const positionsArray = new Float32Array(this.count * 3);
     const scalesArray = new Float32Array(this.count * 1);
@@ -57,7 +57,7 @@ export default class ProjectileParticles {
         uSize: { value: this.size },
         uResolution: { value: this.sizes.resolution },
         uColor1: { value: new THREE.Color("#ffffff") },
-        uColor2: { value: new THREE.Color("#55a1e8z") },
+        uColor2: { value: new THREE.Color("#ffffff  ") },
         uProgress: new THREE.Uniform(0),
       },
       vertexShader: `

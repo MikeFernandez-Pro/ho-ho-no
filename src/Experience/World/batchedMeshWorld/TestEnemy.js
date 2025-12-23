@@ -169,7 +169,7 @@ export default class Enemy extends THREE.EventDispatcher {
       this.physics.world.createRigidBody(enemyRigidBodyDesc);
 
     // Collider configuration
-    const enemyColliderDesc = RAPIER.ColliderDesc.cuboid(0.8, 1, 0.8);
+    const enemyColliderDesc = RAPIER.ColliderDesc.cuboid(0.8, 1, 0.7);
 
     const enemyCollider = this.physics.world.createCollider(
       enemyColliderDesc,
