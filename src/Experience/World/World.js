@@ -11,6 +11,7 @@ import DummyTarget from "#world/DummyTarget.js";
 import TestEnemy from "#world/batchedMeshWorld/TestEnemy.js";
 import Snow from "#world/Snow.js";
 import Floor from "#world/Floor.js";
+import ProjectileParticles from "#world/projectiles/ProjectileParticles.js";
 export default class World {
   constructor() {
     this.experience = new Experience();
@@ -31,6 +32,7 @@ export default class World {
     this.camp = new Camp();
     this.snow = new Snow();
     this.floor = new Floor();
+    this.projectileParticles = new ProjectileParticles();
     //this.enemy = new Enemy();
     //this.enemyInstanced = new EnemyInstanced();
     // this.dummyTarget = new DummyTarget();

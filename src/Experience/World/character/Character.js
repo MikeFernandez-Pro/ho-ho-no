@@ -4,7 +4,7 @@ import * as RAPIER from "@dimforge/rapier3d";
 import Experience from "#experience/Experience.js";
 import CharacterAnimationController from "./CharacterAnimationController.js";
 import CharacterController from "./CharacterController.js";
-import ProjectilesFactory from "./ProjectilesFactory.js";
+import ProjectilesFactory from "../projectiles/ProjectilesFactory.js";
 
 import declarationsVertexShaderChunk from "#shaders/character/vertexShader/declarations.glsl?raw";
 import logicVertexShaderChunk from "#shaders/character/vertexShader/logic.glsl?raw";
