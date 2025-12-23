@@ -12,6 +12,8 @@ export default {
     outDir: "../dist", // Output in the dist/ folder
     emptyOutDir: true, // Empty the folder first
     sourcemap: true, // Add sourcemap
+    // Rapier WASM wrapper uses top-level await; allow it in the build output.
+    target: "esnext",
   },
   plugins: [
     wasm(),

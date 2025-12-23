@@ -20,6 +20,8 @@ export default class ProjectilesFactory {
     this.characterController = character.characterController;
     this.batchedMeshWorld = this.experience.world.batchedMeshWorld;
     this.testEnemy = this.experience.world.batchedMeshWorld.testEnemy;
+    // NOTE: `ProjectileParticles` is created in `World` and may not exist yet
+    // depending on initialization order. Always read it lazily from `world`.
 
     this.snowBallModel = this.resources.items.snowBallModel;
     this.gradientTexture = this.experience.resources.items.gradientTexture;
@@ -31,7 +33,28 @@ export default class ProjectilesFactory {
 
     this.characterController.addEventListener("shoot", this.clickEventHandler);
     this.testEnemy.addEventListener("enemyHit", this.enemyHitEventHandler);
+
+    this.physics.addEventListener("collision", this.collisionEventHandler);
   }
+
+  collisionEventHandler = (event) => {
+    const c1Type = event.collider1?.userData?.type;
+    const c2Type = event.collider2?.userData?.type;
+    const isProjectileArena =
+      (c1Type === "projectile" && c2Type === "arena") ||
+      (c1Type === "arena" && c2Type === "projectile");
+
+    if (!isProjectileArena) {
+      return;
+    }
+
+    const projectileId =
+      c1Type === "projectile"
+        ? event.collider1.userData.id
+        : event.collider2.userData.id;
+
+    this.destroyProjectileByInstance(projectileId);
+  };
 
   clickEventHandler = (event) => {
     this.createProjectile(event.position, event.angle);
@@ -64,6 +87,8 @@ export default class ProjectilesFactory {
       z: 0,
       w: Math.cos(angle * 0.5),
     });
+    // Helps avoid tunneling through thin trimesh colliders at high speed.
+    projectileRigidBodyDesc.setCcdEnabled(true);
 
     const projectileRigidBody = this.physics.world.createRigidBody(
       projectileRigidBodyDesc
@@ -81,6 +106,8 @@ export default class ProjectilesFactory {
       projectileColliderDesc,
       projectileRigidBody
     );
+    projectileCollider.setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS);
+
     projectileCollider.userData = {
       type: "projectile",
       id: projectileInstanceID,
@@ -170,6 +197,13 @@ export default class ProjectilesFactory {
   destroyProjectile(index) {
     const projectile = this.list[index];
     if (!projectile) return;
+
+    const projectileParticles = this.experience.world.projectileParticles;
+    if (projectileParticles) {
+      projectileParticles.createProjectileParticles(
+        projectile.rigidBody.translation()
+      );
+    }
 
     // remove mesh properly
     this.batchedMeshWorld.batchedMesh.deleteInstance(projectile.instance);

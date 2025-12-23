@@ -44,13 +44,23 @@ export default class Camp {
     this.experience.physics.world.createCollider(groundColliderDesc, rigidBody);
 
     // Create the arena collider
-    this.arenaCollider = this.resources.items.arenaColliderModel;
-    this.arenaColliderGeometry = this.arenaCollider.scene.children[0].geometry;
+    this.arenaColliderMesh = this.resources.items.arenaColliderModel;
+    this.arenaColliderGeometry =
+      this.arenaColliderMesh.scene.children[0].geometry;
 
     let arenaColliderDesc = RAPIER.ColliderDesc.trimesh(
       this.arenaColliderGeometry.attributes.position.array,
       this.arenaColliderGeometry.index.array
     );
-    this.experience.physics.world.createCollider(arenaColliderDesc, rigidBody);
+    this.arenaCollider = this.experience.physics.world.createCollider(
+      arenaColliderDesc,
+      rigidBody
+    );
+    // Make sure collision events can be generated for interactions with this collider.
+    // (Projectiles enable collision events too, but this makes debugging clearer.)
+    this.arenaCollider.setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS);
+    this.arenaCollider.userData = {
+      type: "arena",
+    };
   }
 }

@@ -19,7 +19,7 @@ const CHASE_SPEED = 3.5;
 const SPAWN_INTERVAL_START = 2.0; // seconds at t=0
 const SPAWN_INTERVAL_END = 0.5; // seconds at t=SPAWN_INTERVAL_RAMP_DURATION
 const SPAWN_INTERVAL_RAMP_DURATION = 60.0; // seconds (2 minutes)
-const SPAWN_MAX_RADIUS = 20; // max distance from center (0,0,0)
+const SPAWN_MAX_RADIUS = 17; // max distance from center (0,0,0)
 const SPAWN_MIN_PLAYER_DISTANCE = 7; // min distance from player
 const SPAWN_MAX_TRIES = 30;
 
@@ -175,7 +175,6 @@ export default class Enemy extends THREE.EventDispatcher {
       enemyColliderDesc,
       enemyRigidBody
     );
-    enemyCollider.setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS);
     enemyCollider.userData = {
       type: "enemy",
       id: enemyInstanceID,

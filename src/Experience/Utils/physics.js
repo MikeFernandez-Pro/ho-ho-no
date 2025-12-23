@@ -23,6 +23,10 @@ export default class Physics extends THREE.EventDispatcher {
       const collider1 = this.world.getCollider(handle1);
       const collider2 = this.world.getCollider(handle2);
 
+      // Colliders may have been removed earlier in this same drain loop by another handler.
+      // Skip nulls to avoid downstream crashes.
+      if (!collider1 || !collider2) return;
+
       if (started) {
         this.dispatchEvent({ type: "collision", collider1, collider2 });
       }

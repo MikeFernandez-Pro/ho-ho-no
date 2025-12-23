@@ -27,11 +27,6 @@ export default class Environment {
     }
 
     this.setSunLight();
-    // Debug shadow camera frustum
-    if (this.debug.active) {
-      this.cameraHelper = new THREE.CameraHelper(this.sunLight.shadow.camera);
-      this.scene.add(this.cameraHelper);
-    }
 
     this.scene.add(new THREE.AmbientLight("#ffffff", 1));
   }

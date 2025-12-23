@@ -28,11 +28,11 @@ export default class World {
 
     //this.toySoldier = new ToySoldier();
     this.batchedMeshWorld = new BatchedMeshWorld();
-    this.character = new Character();
     this.camp = new Camp();
+    this.projectileParticles = new ProjectileParticles();
+    this.character = new Character();
     this.snow = new Snow();
     this.floor = new Floor();
-    this.projectileParticles = new ProjectileParticles();
     //this.enemy = new Enemy();
     //this.enemyInstanced = new EnemyInstanced();
     // this.dummyTarget = new DummyTarget();

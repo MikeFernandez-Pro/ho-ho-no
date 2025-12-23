@@ -11,21 +11,13 @@ export default class ProjectileParticles {
     this.resources = this.experience.resources;
     this.time = this.experience.time;
 
-    this.count = 10;
-    this.size = 0.5;
-    this.radius = 1;
-
-    const position = new THREE.Vector3(5, 5, 5);
-    const angle = 0;
-
-    this.createProjectileParticles(position, angle);
-
-    window.addEventListener("click", () => {
-      this.createProjectileParticles(position, angle);
-    });
+    this.count = 15;
+    this.size = 1;
+    this.radius = 2;
   }
 
-  createProjectileParticles(position, angle) {
+  createProjectileParticles(position) {
+    position.y += 1;
     // Geometry
     const positionsArray = new Float32Array(this.count * 3);
     const scalesArray = new Float32Array(this.count * 1);
@@ -64,7 +56,8 @@ export default class ProjectileParticles {
       uniforms: {
         uSize: { value: this.size },
         uResolution: { value: this.sizes.resolution },
-        uColor: { value: new THREE.Color(1.0, 1.0, 1.0) },
+        uColor1: { value: new THREE.Color("#ffffff") },
+        uColor2: { value: new THREE.Color("#55a1e8z") },
         uProgress: new THREE.Uniform(0),
       },
       vertexShader: `
@@ -84,14 +77,12 @@ export default class ProjectileParticles {
 
             // Exploding
     float explodingProgress = uProgress;
-//  explodingProgress = 1.0 - pow(1.0 - explodingProgress, 3.0);
     newPosition *= explodingProgress;
 
     // Falling
     float fallingProgress = uProgress;
-    // fallingProgress = 1.0 - pow(1.0 - fallingProgress, 3.0);
-    newPosition.y -= fallingProgress * 1.0;
-
+    newPosition.y -= fallingProgress * 3.0;
+      
     // Scaling
     float scaleProgress = 1.0 - uProgress;
    
@@ -105,15 +96,19 @@ export default class ProjectileParticles {
         }
         `,
       fragmentShader: `
-        uniform vec3 uColor;
+        uniform vec3 uColor1;
+        uniform vec3 uColor2;
 
         void main() {
           float circle = step(0.5, distance(gl_PointCoord, vec2(0.5)) + 0.25);
     circle = 1.0 - circle;
 
-    vec3 color = uColor;    
-    color *= circle;    
-
+    vec3 color1 = uColor1;    
+    vec3 color2 = uColor2;    
+    
+      vec3 color = mix(color1, color2, gl_PointCoord.y);
+      color *= circle;
+      
     // Final color
     gl_FragColor = vec4(color, circle);
     #include <tonemapping_fragment>
@@ -139,7 +134,7 @@ export default class ProjectileParticles {
     gsap.to(material.uniforms.uProgress, {
       value: 1,
       duration: 1,
-      ease: "power2.outq",
+      ease: "power2.out",
       onComplete: destroy,
     });
   }
