@@ -36,6 +36,11 @@ export default [
   },
 
   {
+    name: "elfCheeringVATTexture",
+    type: "exrTexture",
+    path: "textures/vat/elf/cheeringVAT.exr",
+  },
+  {
     name: "SantaClousIdleVatTextureExr",
     type: "exrTexture",
     path: "textures/vat/santaClous/idle.exr",
@@ -114,5 +119,10 @@ export default [
     name: "arenaColliderModel",
     type: "gltfModel",
     path: "models/arenaCollider.glb",
+  },
+  {
+    name: "elfModel",
+    type: "gltfModel",
+    path: "models/elf.glb",
   },
 ];

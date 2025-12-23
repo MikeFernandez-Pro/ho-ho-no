@@ -12,6 +12,7 @@ import TestEnemy from "#world/batchedMeshWorld/TestEnemy.js";
 import Snow from "#world/Snow.js";
 import Floor from "#world/Floor.js";
 import ProjectileParticles from "#world/projectiles/ProjectileParticles.js";
+import Elf from "#world/Elf.js";
 export default class World {
   constructor() {
     this.experience = new Experience();
@@ -33,6 +34,7 @@ export default class World {
     this.character = new Character();
     this.snow = new Snow();
     this.floor = new Floor();
+    this.elf = new Elf();
     //this.enemy = new Enemy();
     //this.enemyInstanced = new EnemyInstanced();
     // this.dummyTarget = new DummyTarget();
@@ -69,6 +71,9 @@ export default class World {
 
     if (this.environment) {
       this.environment.update();
+    }
+    if (this.elf) {
+      this.elf.update();
     }
   }
 
