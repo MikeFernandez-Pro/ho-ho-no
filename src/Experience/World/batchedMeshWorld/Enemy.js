@@ -10,7 +10,7 @@ const ENEMY_MESH_OFFSET = new THREE.Vector3(0, -1, 0);
 const DEAD_SINK_DELAY = 3; // seconds after hit before sinking starts
 const DEAD_SINK_TARGET_Y = -3;
 const DEAD_SINK_SPEED = 1; // units / second
-const DEATH_BLEND_DURATION = 0.25; // seconds (stored in scale.z, used in shader)
+const DEATH_BLEND_DURATION = 0.1; // seconds (stored in scale.z, used in shader)
 
 // Simple chase tuning (no stop distance)
 const CHASE_SPEED = 3.5;
@@ -19,9 +19,7 @@ const CHASE_SPEED = 3.5;
 const SPAWN_INTERVAL_START = 2.0; // seconds at t=0
 const SPAWN_INTERVAL_END = 0.5; // seconds at t=SPAWN_INTERVAL_RAMP_DURATION
 const SPAWN_INTERVAL_RAMP_DURATION = 60.0; // seconds (2 minutes)
-const SPAWN_MAX_RADIUS = 17; // max distance from center (0,0,0)
-const SPAWN_MIN_PLAYER_DISTANCE = 7; // min distance from player
-const SPAWN_MAX_TRIES = 30;
+const SPAWN_RADIUS = 17; // exact distance from center (0,0,0)
 
 export default class Enemy extends THREE.EventDispatcher {
   constructor(batchedMesh) {
@@ -169,7 +167,7 @@ export default class Enemy extends THREE.EventDispatcher {
       this.physics.world.createRigidBody(enemyRigidBodyDesc);
 
     // Collider configuration
-    const enemyColliderDesc = RAPIER.ColliderDesc.cuboid(0.8, 1, 0.7);
+    const enemyColliderDesc = RAPIER.ColliderDesc.capsule(0.8, 1, 0.7);
 
     const enemyCollider = this.physics.world.createCollider(
       enemyColliderDesc,
@@ -224,44 +222,23 @@ export default class Enemy extends THREE.EventDispatcher {
     );
   }
 
-  _computeSpawnPosition(characterRb) {
-    // If we don't have a player, just spawn somewhere inside the circle.
-    if (characterRb) {
-      const t = characterRb.translation();
-      this._tmpCharPos.set(t.x, t.y, t.z);
-    }
-
-    for (let i = 0; i < SPAWN_MAX_TRIES; i++) {
-      // Uniform distribution over disk area
-      const r = Math.sqrt(Math.random()) * SPAWN_MAX_RADIUS;
-      const a = Math.random() * Math.PI * 2;
-      this._tmpSpawnPos.set(Math.cos(a) * r, 0, Math.sin(a) * r);
-
-      if (!characterRb) return this._tmpSpawnPos;
-
-      const dx = this._tmpSpawnPos.x - this._tmpCharPos.x;
-      const dz = this._tmpSpawnPos.z - this._tmpCharPos.z;
-      if (
-        dx * dx + dz * dz >=
-        SPAWN_MIN_PLAYER_DISTANCE * SPAWN_MIN_PLAYER_DISTANCE
-      ) {
-        return this._tmpSpawnPos;
-      }
-    }
-
-    // Fallback: place on the rim, away from the player direction
-    if (characterRb) {
-      this._tmpDir.subVectors(this._tmpCenterPos, this._tmpCharPos);
-      this._tmpDir.y = 0;
-      if (this._tmpDir.lengthSq() > 0.000001) {
-        this._tmpDir.normalize().multiplyScalar(SPAWN_MAX_RADIUS);
-        this._tmpSpawnPos.set(this._tmpDir.x, 0, this._tmpDir.z);
-        return this._tmpSpawnPos;
-      }
-    }
-
-    this._tmpSpawnPos.set(SPAWN_MAX_RADIUS, 0, 0);
+  _sampleSpawnPositionOnCircle(angle) {
+    // Spawn on a fixed-radius ring centered on _tmpCenterPos (XZ plane)
+    const cx = this._tmpCenterPos.x;
+    const cz = this._tmpCenterPos.z;
+    this._tmpSpawnPos.set(
+      cx + Math.cos(angle) * SPAWN_RADIUS,
+      0,
+      cz + Math.sin(angle) * SPAWN_RADIUS
+    );
     return this._tmpSpawnPos;
+  }
+
+  _computeSpawnPosition(characterRb) {
+    // Enemies spawn on a fixed-radius circle around the center (XZ plane).
+    // `characterRb` is intentionally ignored: the ring is always valid to spawn on.
+    const a = Math.random() * Math.PI * 2;
+    return this._sampleSpawnPositionOnCircle(a);
   }
 
   update() {
