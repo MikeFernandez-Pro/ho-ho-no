@@ -19,7 +19,7 @@ export default class ProjectilesFactory {
     this.character = character;
     this.characterController = character.characterController;
     this.batchedMeshWorld = this.experience.world.batchedMeshWorld;
-    this.testEnemy = this.experience.world.batchedMeshWorld.testEnemy;
+    this.enemy = this.experience.world.batchedMeshWorld.enemy;
     // NOTE: `ProjectileParticles` is created in `World` and may not exist yet
     // depending on initialization order. Always read it lazily from `world`.
 
@@ -32,7 +32,7 @@ export default class ProjectilesFactory {
     this.setGeometry();
 
     this.characterController.addEventListener("shoot", this.clickEventHandler);
-    this.testEnemy.addEventListener("enemyHit", this.enemyHitEventHandler);
+    this.enemy.addEventListener("enemyHit", this.enemyHitEventHandler);
 
     this.physics.addEventListener("collision", this.collisionEventHandler);
   }

@@ -5,7 +5,7 @@ import Experience from "#experience/Experience.js";
 
 import declarationsVertexShaderChunk from "#shaders/batchedMeshWorld/declarations.glsl?raw";
 import logicVertexShaderChunk from "#shaders/batchedMeshWorld/logic.glsl?raw";
-import TestEnemy from "#world/batchedMeshWorld/TestEnemy.js";
+import Enemy from "#world/batchedMeshWorld/Enemy.js";
 
 export default class BatchedMeshWorld {
   constructor() {
@@ -58,7 +58,7 @@ export default class BatchedMeshWorld {
 
   setInstances = () => {
     //   this.santaClous = new SantaClous(this.batchedMesh);
-    this.testEnemy = new TestEnemy(this.batchedMesh);
+    this.enemy = new Enemy(this.batchedMesh);
   };
 
   setShadersConfig = () => {
@@ -88,16 +88,16 @@ export default class BatchedMeshWorld {
     material.onBeforeCompile = (shader) => {
       // Hook our uniforms into the program uniforms (same pattern as Character.js)
       Object.assign(shader.uniforms, this.uniforms);
-      Object.assign(shader.uniforms, this.testEnemy.uniforms);
+      Object.assign(shader.uniforms, this.enemy.uniforms);
 
       shader.vertexShader = shader.vertexShader.replace(
         "#include <common>",
-        `${declarationsVertexShaderChunk}\n${this.testEnemy.declarationsShaderChunk}\n`
+        `${declarationsVertexShaderChunk}\n${this.enemy.declarationsShaderChunk}\n`
       );
 
       shader.vertexShader = shader.vertexShader.replace(
         "#include <project_vertex>",
-        `${this.testEnemy.logicShaderChunk}\n`
+        `${this.enemy.logicShaderChunk}\n`
       );
     };
   };
@@ -106,7 +106,7 @@ export default class BatchedMeshWorld {
     const t = this.time.elapsed;
     this.uniforms.uTime.value = t;
 
-    this.testEnemy.update();
+    this.enemy.update();
 
     // this.santaClous.update();
   };

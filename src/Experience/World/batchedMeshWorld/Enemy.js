@@ -3,8 +3,8 @@ import * as RAPIER from "@dimforge/rapier3d";
 
 import Experience from "#experience/Experience.js";
 
-import declarationsShaderChunk from "../../../shaders/testEnemy/declarations.glsl?raw";
-import logicShaderChunk from "../../../shaders/testEnemy/logic.glsl?raw";
+import declarationsShaderChunk from "../../../shaders/enemy/declarations.glsl?raw";
+import logicShaderChunk from "../../../shaders/enemy/logic.glsl?raw";
 
 const ENEMY_MESH_OFFSET = new THREE.Vector3(0, -1, 0);
 const DEAD_SINK_DELAY = 3; // seconds after hit before sinking starts

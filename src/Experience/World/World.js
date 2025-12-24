@@ -21,7 +21,6 @@ export default class World {
     // Setup
     this.environment = new Environment();
 
-    //this.toySoldier = new ToySoldier();
     this.batchedMeshWorld = new BatchedMeshWorld();
     this.camp = new Camp();
     this.projectileParticles = new ProjectileParticles();
