@@ -1,6 +1,5 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
-import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader.js";
 import { EXRLoader } from "three/addons/loaders/EXRLoader.js";
 
 export default class Resources extends THREE.EventDispatcher {
@@ -21,7 +20,6 @@ export default class Resources extends THREE.EventDispatcher {
     this.loaders = {};
     this.loaders.gltfLoader = new GLTFLoader();
     this.loaders.textureLoader = new THREE.TextureLoader();
-    this.loaders.rgbeLoader = new RGBELoader();
     this.loaders.exrLoader = new EXRLoader();
   }
 
@@ -38,11 +36,6 @@ export default class Resources extends THREE.EventDispatcher {
         });
       } else if (source.type === "exrTexture") {
         this.loaders.exrLoader.load(source.path, (file) => {
-          this.sourceLoaded(source, file);
-        });
-      } else if (source.type === "hdrTexture") {
-        this.loaders.rgbeLoader.load(source.path, (file) => {
-          file.mapping = THREE.EquirectangularReflectionMapping;
           this.sourceLoaded(source, file);
         });
       }

@@ -15,7 +15,6 @@ export default class Character {
     this.time = this.experience.time;
     this.physics = this.experience.physics;
     this.gradientTexture = this.experience.resources.items.gradientTexture;
-    this.threeToneTexture = this.experience.resources.items.threeToneTexture;
     this.fiveToneTexture = this.experience.resources.items.fiveToneTexture;
 
     if (this.debug.active) {

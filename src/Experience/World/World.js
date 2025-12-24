@@ -1,14 +1,8 @@
 import Experience from "#experience/Experience.js";
 import Environment from "#world/Environment.js";
-
-import ToySoldier from "#world/ToySoldier.js";
 import Camp from "#world/Camp.js";
 import BatchedMeshWorld from "#world/batchedMeshWorld/BatchedMeshWorld.js";
 import Character from "#world/character/Character.js";
-import Enemy from "#world/enemy/Enemy.js";
-import EnemyInstanced from "#world/enemy/EnemyInstanced.js";
-import DummyTarget from "#world/DummyTarget.js";
-import TestEnemy from "#world/batchedMeshWorld/TestEnemy.js";
 import Snow from "#world/Snow.js";
 import Floor from "#world/Floor.js";
 import ProjectileParticles from "#world/projectiles/ProjectileParticles.js";
@@ -35,30 +29,11 @@ export default class World {
     this.snow = new Snow();
     this.floor = new Floor();
     this.elf = new Elf();
-    //this.enemy = new Enemy();
-    //this.enemyInstanced = new EnemyInstanced();
-    // this.dummyTarget = new DummyTarget();
-    // this.santa = new Santa();
   };
 
   update() {
-    //if (this.santa) {
-    // this.santa.update();
-    //}
-    // if (this.toySoldier) {
-    //   this.toySoldier.update();
-    // }
     if (this.character) {
       this.character.update();
-    }
-    if (this.enemy) {
-      this.enemy.update();
-    }
-    if (this.enemyInstanced) {
-      this.enemyInstanced.update();
-    }
-    if (this.dummyTarget) {
-      this.dummyTarget.update();
     }
 
     if (this.batchedMeshWorld) {

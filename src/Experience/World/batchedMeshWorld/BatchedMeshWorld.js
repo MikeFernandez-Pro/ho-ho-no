@@ -3,8 +3,8 @@ import Experience from "#experience/Experience.js";
 
 // import SantaClous from "./SantaClous.js";
 
-import declarationsVertexShaderChunk from "#shaders/batchedMeshWorld/vertexShader/declarations.glsl?raw";
-import logicVertexShaderChunk from "#shaders/batchedMeshWorld/vertexShader/logic.glsl?raw";
+import declarationsVertexShaderChunk from "#shaders/batchedMeshWorld/declarations.glsl?raw";
+import logicVertexShaderChunk from "#shaders/batchedMeshWorld/logic.glsl?raw";
 import TestEnemy from "#world/batchedMeshWorld/TestEnemy.js";
 
 export default class BatchedMeshWorld {
@@ -25,14 +25,6 @@ export default class BatchedMeshWorld {
     this.gradientTexture = this.resources.items.gradientTexture;
     this.gradientTexture.colorSpace = THREE.SRGBColorSpace;
     this.gradientTexture.flipY = false;
-
-    this.threeToneTexture = this.resources.items.threeToneTexture;
-    this.threeToneTexture.colorSpace = THREE.SRGBColorSpace;
-    this.threeToneTexture.flipY = false;
-    this.threeToneTexture.minFilter = THREE.NearestFilter;
-    this.threeToneTexture.magFilter = THREE.NearestFilter;
-    this.threeToneTexture.wrapS = THREE.ClampToEdgeWrapping;
-    this.threeToneTexture.wrapT = THREE.ClampToEdgeWrapping;
 
     this.fiveToneTexture = this.resources.items.fiveToneTexture;
     this.fiveToneTexture.colorSpace = THREE.SRGBColorSpace;
