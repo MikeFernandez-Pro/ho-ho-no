@@ -1,5 +1,9 @@
-import Experience from "#experience/Experience.js";
 import * as THREE from "three";
+
+import Experience from "#experience/Experience.js";
+
+import declarationsShaderChunk from "#shaders/elf/declarations.glsl?raw";
+import logicShaderChunk from "#shaders/elf/logic.glsl?raw";
 
 export default class Elf {
   constructor() {
@@ -8,20 +12,30 @@ export default class Elf {
     this.resources = this.experience.resources;
     this.time = this.experience.time;
 
-    this.elfModel = this.resources.items.elfModel;
+    this.setTextures();
+    this.setMaterial();
+    this.setBatchedMesh();
+    this.setGeometry();
+    this.setInstances();
 
+    this.setShadersConfig();
+  }
+
+  setTextures() {
     this.gradientTexture = this.resources.items.gradientTexture;
     this.fiveToneTexture = this.resources.items.fiveToneTexture;
     this.elfCheeringVATTexture = this.resources.items.elfCheeringVATTexture;
+    this.sittingVATTexture = this.resources.items.sittingVATTexture;
+  }
 
-    const elfMesh = this.elfModel.scene.children[0];
-    this.elfMeshGeometry = elfMesh.geometry;
-
+  setMaterial() {
     this.elfMeshMaterial = new THREE.MeshToonMaterial({
       map: this.gradientTexture,
       gradientMap: this.fiveToneTexture,
     });
+  }
 
+  setBatchedMesh() {
     this.elfBatchedMesh = new THREE.BatchedMesh(
       2,
       10000,
@@ -30,9 +44,17 @@ export default class Elf {
     );
     this.elfBatchedMesh.castShadow = true;
     this.scene.add(this.elfBatchedMesh);
+  }
 
-    this.elfGeometryID = this.elfBatchedMesh.addGeometry(this.elfMeshGeometry);
+  setGeometry() {
+    const elfModel = this.resources.items.elfModel;
+    const elfMesh = elfModel.scene.children[0];
+    const elfMeshGeometry = elfMesh.geometry;
 
+    this.elfGeometryID = this.elfBatchedMesh.addGeometry(elfMeshGeometry);
+  }
+
+  setInstances() {
     this.elfInstanceID = this.elfBatchedMesh.addInstance(this.elfGeometryID);
 
     const matrix = new THREE.Matrix4();
@@ -44,15 +66,26 @@ export default class Elf {
     matrix.compose(position, quaternion, scale);
     this.elfBatchedMesh.setMatrixAt(this.elfInstanceID, matrix);
 
-    this.setShadersConfig();
+    this.elfInstanceID2 = this.elfBatchedMesh.addInstance(this.elfGeometryID);
+
+    const matrix2 = new THREE.Matrix4();
+    const position2 = new THREE.Vector3(3, 1.7, 3);
+    const quaternion2 = new THREE.Quaternion().setFromEuler(
+      new THREE.Euler(0, 0, 0)
+    );
+    const scale2 = new THREE.Vector3(2, 1, 1);
+    matrix2.compose(position2, quaternion2, scale2);
+    this.elfBatchedMesh.setMatrixAt(this.elfInstanceID2, matrix2);
   }
 
-  setShadersConfig = () => {
+  setShadersConfig() {
     this.uniforms = {
       uTime: { value: 0 },
-      uTotalFramesCheering: { value: 30 },
       fps: { value: 24 },
       uVATCheering: { value: this.elfCheeringVATTexture },
+      uVATSitting: { value: this.sittingVATTexture },
+      uTotalFramesCheering: { value: 30 },
+      uTotalFramesSitting: { value: 108 },
     };
 
     this.elfBatchedMesh.material.uniforms = this.uniforms;
@@ -65,41 +98,22 @@ export default class Elf {
 
     this.elfBatchedMesh.material.needsUpdate = true;
     this.elfBatchedMesh.customDepthMaterial.needsUpdate = true;
-  };
+  }
 
-  configureMaterialShader = (material) => {
+  configureMaterialShader(material) {
     material.onBeforeCompile = (shader) => {
-      // Hook our uniforms into the program uniforms (same pattern as Character.js)
       Object.assign(shader.uniforms, this.uniforms);
 
       shader.vertexShader = shader.vertexShader.replace(
         "#include <common>",
-        `
-        #include <common>
-        attribute vec2 uv1; 
-        uniform sampler2D uVATCheering; 
-
-        uniform float uTime; 
-        uniform float uTotalFramesCheering;
-        uniform float fps;
-        `
+        declarationsShaderChunk
       );
       shader.vertexShader = shader.vertexShader.replace(
         "#include <project_vertex>",
-        `
-        #include <project_vertex>
-        float frame = mod(uTime * fps, uTotalFramesCheering) / uTotalFramesCheering;
-        frame = 1.0 - frame;
-        vec3 pos = texture(uVATCheering, vec2(uv1.x, uv1.y - frame)).xzy;
-        mvPosition =batchingMatrix * vec4(pos, 1.0);
-
-
-        mvPosition = modelViewMatrix * mvPosition;
-gl_Position = projectionMatrix * mvPosition;
-        `
+        logicShaderChunk
       );
     };
-  };
+  }
 
   update() {
     if (this.elfBatchedMesh.material) {

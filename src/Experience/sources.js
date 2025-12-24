@@ -21,6 +21,11 @@ export default [
     path: "textures/vat/elf/cheeringVAT.exr",
   },
   {
+    name: "sittingVATTexture",
+    type: "exrTexture",
+    path: "textures/vat/elf/sittingVAT.exr",
+  },
+  {
     name: "enemyWalkVATTexture",
     type: "exrTexture",
     path: "textures/vat/enemy/walk.exr",
