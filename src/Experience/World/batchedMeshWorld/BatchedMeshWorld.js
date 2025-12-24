@@ -5,8 +5,6 @@ import Experience from "#experience/Experience.js";
 
 import declarationsVertexShaderChunk from "#shaders/batchedMeshWorld/vertexShader/declarations.glsl?raw";
 import logicVertexShaderChunk from "#shaders/batchedMeshWorld/vertexShader/logic.glsl?raw";
-import declarationsFragmentShaderChunk from "#shaders/batchedMeshWorld/fragmentShader/declarations.glsl?raw";
-import logicFragmentShaderChunk from "#shaders/batchedMeshWorld/fragmentShader/logic.glsl?raw";
 import TestEnemy from "#world/batchedMeshWorld/TestEnemy.js";
 
 export default class BatchedMeshWorld {

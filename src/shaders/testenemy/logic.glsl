@@ -54,20 +54,5 @@ vec4 mvPosition;
    mvPosition = instanceMatrix * mvPosition;
 #endif
 
-// Provide Character.js-style varyings for the fragment lighting.
-// `mvPosition` is still in object space here (after batching/instancing), so we can compute world-space.
-vCustomPosition = (modelMatrix * mvPosition).xyz;
-
-vec3 n = normal;
-#ifdef USE_BATCHING
-   n = mat3(removeScale(batchingMatrix)) * n;
-#endif
-#ifdef USE_INSTANCING
-   n = mat3(removeScale(instanceMatrix)) * n;
-#endif
-n = mat3(modelMatrix) * n;
-float nLen2 = dot(n, n);
-vCustomNormal = (nLen2 > 1e-8) ? (n * inversesqrt(nLen2)) : vec3(0.0, 1.0, 0.0);
-
 mvPosition = modelViewMatrix * mvPosition;
 gl_Position = projectionMatrix * mvPosition;

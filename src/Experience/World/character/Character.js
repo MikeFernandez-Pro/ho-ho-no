@@ -6,11 +6,6 @@ import CharacterAnimationController from "./CharacterAnimationController.js";
 import CharacterController from "./CharacterController.js";
 import ProjectilesFactory from "../projectiles/ProjectilesFactory.js";
 
-import declarationsVertexShaderChunk from "#shaders/character/vertexShader/declarations.glsl?raw";
-import logicVertexShaderChunk from "#shaders/character/vertexShader/logic.glsl?raw";
-import declarationsFragmentShaderChunk from "#shaders/character/fragmentShader/declarations.glsl?raw";
-import logicFragmentShaderChunk from "#shaders/character/fragmentShader/logic.glsl?raw";
-
 export default class Character {
   constructor() {
     this.experience = new Experience();

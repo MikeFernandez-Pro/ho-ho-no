@@ -57,7 +57,7 @@ export default class ProjectileParticles {
         uSize: { value: this.size },
         uResolution: { value: this.sizes.resolution },
         uColor1: { value: new THREE.Color("#ffffff") },
-        uColor2: { value: new THREE.Color("#ffffff  ") },
+        uColor2: { value: new THREE.Color("#ffffff") },
         uProgress: new THREE.Uniform(0),
       },
       vertexShader: `
