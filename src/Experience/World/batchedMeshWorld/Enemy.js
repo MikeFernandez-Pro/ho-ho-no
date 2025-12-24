@@ -167,7 +167,7 @@ export default class Enemy extends THREE.EventDispatcher {
       this.physics.world.createRigidBody(enemyRigidBodyDesc);
 
     // Collider configuration
-    const enemyColliderDesc = RAPIER.ColliderDesc.capsule(0.8, 1, 0.7);
+    const enemyColliderDesc = RAPIER.ColliderDesc.cuboid(0.8, 1, 0.7);
 
     const enemyCollider = this.physics.world.createCollider(
       enemyColliderDesc,
@@ -255,16 +255,16 @@ export default class Enemy extends THREE.EventDispatcher {
     // Safety cap prevents too many spawns in a single long frame.
     let spawnedThisFrame = 0;
     const maxSpawnsPerFrame = 10;
-    // while (
-    //   spawnedThisFrame < maxSpawnsPerFrame &&
-    //   this.time.elapsed >= this._nextSpawnTime
-    // ) {
-    //   const spawnPos = this._computeSpawnPosition(characterRb);
-    //   // clone so list stores a stable snapshot, not our temp vector
-    //   this.createEnnemie(spawnPos.clone());
-    //   spawnedThisFrame++;
-    //   this._nextSpawnTime += this._getSpawnInterval();
-    // }
+    while (
+      spawnedThisFrame < maxSpawnsPerFrame &&
+      this.time.elapsed >= this._nextSpawnTime
+    ) {
+      const spawnPos = this._computeSpawnPosition(characterRb);
+      // clone so list stores a stable snapshot, not our temp vector
+      this.createEnnemie(spawnPos.clone());
+      spawnedThisFrame++;
+      this._nextSpawnTime += this._getSpawnInterval();
+    }
 
     for (let i = this.list.length - 1; i >= 0; i--) {
       const enemy = this.list[i];
