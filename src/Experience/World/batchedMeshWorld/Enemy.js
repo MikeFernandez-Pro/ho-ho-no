@@ -22,7 +22,7 @@ const SPAWN_INTERVAL_RAMP_DURATION = 60.0; // seconds (2 minutes)
 const SPAWN_RADIUS = 17; // exact distance from center (0,0,0)
 
 export default class Enemy extends THREE.EventDispatcher {
-  constructor(batchedMesh) {
+  constructor() {
     super();
 
     this.experience = new Experience();
@@ -31,7 +31,6 @@ export default class Enemy extends THREE.EventDispatcher {
     this.time = this.experience.time;
     this.physics = this.experience.physics;
 
-    this.batchedMesh = batchedMesh;
     this.list = [];
     this.tmpMatrix = new THREE.Matrix4();
     this._tmpPos = new THREE.Vector3();
@@ -45,8 +44,10 @@ export default class Enemy extends THREE.EventDispatcher {
     this._nextSpawnTime = 0;
     this._spawnStartTime = 0;
 
+    this.setTextures();
+    this.setMaterial();
+    this.setBatchedMesh();
     this.setGeometry();
-    this.setVertexAnimationTextures();
     this.setShadersConfig();
 
     // Start spawning once the loop begins
@@ -54,6 +55,79 @@ export default class Enemy extends THREE.EventDispatcher {
     this._nextSpawnTime = this.time.elapsed + SPAWN_INTERVAL_START;
 
     this.physics.addEventListener("collision", this.collisionEventHandler);
+  }
+
+  setTextures() {
+    this.gradientTexture = this.resources.items.gradientTexture;
+    this.fiveToneTexture = this.resources.items.fiveToneTexture;
+    this.enemyWalkVATTexture = this.resources.items.enemyWalkVATTexture;
+    this.enemyDeathVATTexture = this.resources.items.enemyDeathVATTexture;
+  }
+
+  setMaterial() {
+    this.enemyMeshMaterial = new THREE.MeshToonMaterial({
+      map: this.gradientTexture,
+      gradientMap: this.fiveToneTexture,
+    });
+  }
+
+  setBatchedMesh() {
+    this.enemyBatchedMesh = new THREE.BatchedMesh(
+      1000,
+      100000,
+      1000000,
+      this.enemyMeshMaterial
+    );
+    this.enemyBatchedMesh.castShadow = true;
+    this.scene.add(this.enemyBatchedMesh);
+  }
+
+  setGeometry() {
+    const enemyModel = this.resources.items.enemyModel;
+    const enemyMesh = enemyModel.scene.children[0];
+    const enemyMeshGeometry = enemyMesh.geometry;
+
+    this.enemyGeometryID = this.enemyBatchedMesh.addGeometry(enemyMeshGeometry);
+  }
+
+  setShadersConfig() {
+    this.uniforms = {
+      uTime: { value: 0 },
+      fps: { value: 60 },
+      uVATWalk: { value: this.enemyWalkVATTexture },
+      uVATDeath: { value: this.enemyDeathVATTexture },
+      uTotalFramesWalk: { value: 48 },
+      uTotalFramesDeath: { value: 107 },
+    };
+
+    this.enemyBatchedMesh.material.uniforms = this.uniforms;
+    this.enemyBatchedMesh.customDepthMaterial = new THREE.MeshDepthMaterial({
+      depthPacking: THREE.RGBADepthPacking,
+    });
+    this.enemyBatchedMesh.material.customProgramCacheKey = () => "enemy_vat";
+    this.enemyBatchedMesh.customDepthMaterial.customProgramCacheKey = () =>
+      "enemy_vat_depth";
+
+    this.configureMaterialShader(this.enemyBatchedMesh.material);
+    this.configureMaterialShader(this.enemyBatchedMesh.customDepthMaterial);
+
+    this.enemyBatchedMesh.material.needsUpdate = true;
+    this.enemyBatchedMesh.customDepthMaterial.needsUpdate = true;
+  }
+
+  configureMaterialShader(material) {
+    material.onBeforeCompile = (shader) => {
+      Object.assign(shader.uniforms, this.uniforms);
+
+      shader.vertexShader = shader.vertexShader.replace(
+        "#include <common>",
+        declarationsShaderChunk
+      );
+      shader.vertexShader = shader.vertexShader.replace(
+        "#include <project_vertex>",
+        logicShaderChunk
+      );
+    };
   }
 
   killEnemyByInstanceId = (enemyInstanceId) => {
@@ -72,7 +146,7 @@ export default class Enemy extends THREE.EventDispatcher {
     const quat = new THREE.Quaternion();
     const scl = new THREE.Vector3();
 
-    this.batchedMesh.getMatrixAt(enemyInstanceId, m);
+    this.enemyBatchedMesh.getMatrixAt(enemyInstanceId, m);
     m.decompose(pos, quat, scl);
 
     // pos.y = 0.;
@@ -80,7 +154,7 @@ export default class Enemy extends THREE.EventDispatcher {
     scl.y = this.time.elapsed;
     scl.z = DEATH_BLEND_DURATION;
     m.compose(pos, quat, scl);
-    this.batchedMesh.setMatrixAt(enemyInstanceId, m);
+    this.enemyBatchedMesh.setMatrixAt(enemyInstanceId, m);
 
     // Remove rigidbody; attached colliders get removed with it in Rapier
     this.physics.world.removeRigidBody(enemy.rigidBody);
@@ -116,42 +190,6 @@ export default class Enemy extends THREE.EventDispatcher {
     this.killEnemyByInstanceId(enemyCollider.userData.id);
   };
 
-  setGeometry() {
-    this.enemyModel = this.resources.items.enemyModel;
-    this.enemyMesh = this.enemyModel.scene.children[0];
-
-    this.enemyRunningGeometry = this.enemyMesh.geometry.clone();
-    this.enemyDyingGeometry = this.enemyMesh.geometry.clone();
-
-    this.enemyRunningBatchedMeshGeometry = this.batchedMesh.addGeometry(
-      this.enemyRunningGeometry
-    );
-    this.enemyDyingBatchedMeshGeometry = this.batchedMesh.addGeometry(
-      this.enemyDyingGeometry
-    );
-  }
-
-  setVertexAnimationTextures() {
-    this.enemyWalkVATTexture = this.resources.items.enemyWalkVATTexture;
-    this.enemyDeathVATTexture = this.resources.items.enemyDeathVATTexture;
-  }
-
-  setShadersConfig() {
-    this.uniforms = {
-      uVATWalk: { value: this.enemyWalkVATTexture },
-      uVATDeath: { value: this.enemyDeathVATTexture },
-      uTotalFramesWalk: { value: 48 },
-      uTotalFramesDeath: { value: 107 },
-    };
-
-    this.declarationsShaderChunk = declarationsShaderChunk;
-    this.logicShaderChunk = logicShaderChunk;
-  }
-
-  setPhysics() {
-    this.physics = this.experience.physics;
-  }
-
   createEnnemieRigidBody(spawnPosition, enemyInstanceID) {
     // Rigid body configuration
     const enemyRigidBodyDesc = RAPIER.RigidBodyDesc.dynamic();
@@ -182,8 +220,8 @@ export default class Enemy extends THREE.EventDispatcher {
   }
 
   createEnnemie(spawnPosition) {
-    const enemyInstanceID = this.batchedMesh.addInstance(
-      this.enemyRunningBatchedMeshGeometry
+    const enemyInstanceID = this.enemyBatchedMesh.addInstance(
+      this.enemyGeometryID
     );
 
     // Initialize transform at spawn so it doesn't "pop" from origin on the first frame.
@@ -192,7 +230,7 @@ export default class Enemy extends THREE.EventDispatcher {
     this._tmpQuat.identity();
     this._tmpPos.copy(spawnPosition).add(ENEMY_MESH_OFFSET);
     this.tmpMatrix.compose(this._tmpPos, this._tmpQuat, this._tmpScale);
-    this.batchedMesh.setMatrixAt(enemyInstanceID, this.tmpMatrix);
+    this.enemyBatchedMesh.setMatrixAt(enemyInstanceID, this.tmpMatrix);
 
     const { rigidBody, collider } = this.createEnnemieRigidBody(
       spawnPosition,
@@ -242,48 +280,45 @@ export default class Enemy extends THREE.EventDispatcher {
   }
 
   update() {
+    if (this.enemyBatchedMesh.material) {
+      this.enemyBatchedMesh.material.uniforms.uTime.value = this.time.elapsed;
+    }
     const dt = this.time.delta * 0.001;
     const character = this.experience.world?.character;
     const characterRb = character?.characterRigidBody;
-
     if (characterRb) {
       const t = characterRb.translation();
       this._tmpCharPos.set(t.x, t.y, t.z);
     }
-
     // Spawn loop (interval ramps from 3s -> 0.5s over 2 minutes)
     // Safety cap prevents too many spawns in a single long frame.
     let spawnedThisFrame = 0;
     const maxSpawnsPerFrame = 10;
-    while (
-      spawnedThisFrame < maxSpawnsPerFrame &&
-      this.time.elapsed >= this._nextSpawnTime
-    ) {
-      const spawnPos = this._computeSpawnPosition(characterRb);
-      // clone so list stores a stable snapshot, not our temp vector
-      this.createEnnemie(spawnPos.clone());
-      spawnedThisFrame++;
-      this._nextSpawnTime += this._getSpawnInterval();
-    }
+    // while (
+    //   spawnedThisFrame < maxSpawnsPerFrame &&
+    //   this.time.elapsed >= this._nextSpawnTime
+    // ) {
+    //   const spawnPos = this._computeSpawnPosition(characterRb);
+    //   // clone so list stores a stable snapshot, not our temp vector
+    //   this.createEnnemie(spawnPos.clone());
+    //   spawnedThisFrame++;
+    //   this._nextSpawnTime += this._getSpawnInterval();
+    // }
 
     for (let i = this.list.length - 1; i >= 0; i--) {
       const enemy = this.list[i];
-
       // Alive: sync from Rapier
       if (enemy.rigidBody) {
         // Always move toward the character (no stop distance)
         if (characterRb) {
           const enemyT = enemy.rigidBody.translation();
           this._tmpPos.set(enemyT.x, enemyT.y, enemyT.z);
-
           this._tmpDir.subVectors(this._tmpCharPos, this._tmpPos);
           this._tmpDir.y = 0;
-
           // Avoid NaNs if on same XZ position
           if (this._tmpDir.lengthSq() > 0.000001) {
             this._tmpDir.normalize();
-
-            // Face the target (yaw only)
+            //  Face the target (yaw only)
             const yaw = Math.atan2(this._tmpDir.x, this._tmpDir.z);
             this._tmpQuat.setFromAxisAngle(new THREE.Vector3(0, 1, 0), yaw);
             enemy.rigidBody.setRotation(
@@ -295,7 +330,6 @@ export default class Enemy extends THREE.EventDispatcher {
               },
               true
             );
-
             const currentVel = enemy.rigidBody.linvel();
             enemy.rigidBody.setLinvel(
               {
@@ -307,7 +341,6 @@ export default class Enemy extends THREE.EventDispatcher {
             );
           }
         }
-
         const enemyTranslation = enemy.rigidBody.translation();
         this._tmpPos.set(
           enemyTranslation.x,
@@ -315,36 +348,30 @@ export default class Enemy extends THREE.EventDispatcher {
           enemyTranslation.z
         );
         this._tmpPos.add(ENEMY_MESH_OFFSET);
-
         // Preserve batchingMatrix scale channels (shader uses them for animation),
         // but overwrite translation + yaw rotation.
-        this.batchedMesh.getMatrixAt(enemy.instance, this.tmpMatrix);
+        this.enemyBatchedMesh.getMatrixAt(enemy.instance, this.tmpMatrix);
         this.tmpMatrix.decompose(this._tmpDir, this._tmpQuat, this._tmpScale);
-
         const rbRot = enemy.rigidBody.rotation();
         this._tmpQuat.set(rbRot.x, rbRot.y, rbRot.z, rbRot.w);
-
         this.tmpMatrix.compose(this._tmpPos, this._tmpQuat, this._tmpScale);
-        this.batchedMesh.setMatrixAt(enemy.instance, this.tmpMatrix);
+        this.enemyBatchedMesh.setMatrixAt(enemy.instance, this.tmpMatrix);
         continue;
       }
-
       // Dead: after a delay, sink down, then delete instance + remove from list
       if (enemy.hitTime === null) continue;
       if (this.time.elapsed < enemy.hitTime + DEAD_SINK_DELAY) continue;
       if (!enemy.deadPosition || !enemy.deadQuaternion || !enemy.deadScale)
         continue;
-
       enemy.deadPosition.y -= DEAD_SINK_SPEED * dt;
       this.tmpMatrix.compose(
         enemy.deadPosition,
         enemy.deadQuaternion,
         enemy.deadScale
       );
-      this.batchedMesh.setMatrixAt(enemy.instance, this.tmpMatrix);
-
+      this.enemyBatchedMesh.setMatrixAt(enemy.instance, this.tmpMatrix);
       if (enemy.deadPosition.y <= DEAD_SINK_TARGET_Y) {
-        this.batchedMesh.deleteInstance(enemy.instance);
+        this.enemyBatchedMesh.deleteInstance(enemy.instance);
         this.list.splice(i, 1);
       }
     }

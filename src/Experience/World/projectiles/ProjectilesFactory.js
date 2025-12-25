@@ -19,7 +19,7 @@ export default class ProjectilesFactory {
     this.character = character;
     this.characterController = character.characterController;
     this.batchedMeshWorld = this.experience.world.batchedMeshWorld;
-    this.enemy = this.experience.world.batchedMeshWorld.enemy;
+    this.enemy = this.experience.world.enemy;
     // NOTE: `ProjectileParticles` is created in `World` and may not exist yet
     // depending on initialization order. Always read it lazily from `world`.
 

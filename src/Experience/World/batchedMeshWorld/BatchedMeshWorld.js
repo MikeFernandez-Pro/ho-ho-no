@@ -1,12 +1,6 @@
 import * as THREE from "three";
 import Experience from "#experience/Experience.js";
 
-// import SantaClous from "./SantaClous.js";
-
-import declarationsVertexShaderChunk from "#shaders/batchedMeshWorld/declarations.glsl?raw";
-import logicVertexShaderChunk from "#shaders/batchedMeshWorld/logic.glsl?raw";
-import Enemy from "#world/batchedMeshWorld/Enemy.js";
-
 export default class BatchedMeshWorld {
   constructor() {
     this.experience = new Experience();
@@ -17,8 +11,6 @@ export default class BatchedMeshWorld {
     this.setTextures();
     this.setMaterial();
     this.setBatchedMesh();
-    this.setInstances();
-    this.setShadersConfig();
   }
 
   setTextures = () => {
@@ -54,60 +46,5 @@ export default class BatchedMeshWorld {
     this.batchedMesh.receiveShadow = true;
 
     this.scene.add(this.batchedMesh);
-  };
-
-  setInstances = () => {
-    //   this.santaClous = new SantaClous(this.batchedMesh);
-    this.enemy = new Enemy(this.batchedMesh);
-  };
-
-  setShadersConfig = () => {
-    this.uniforms = {
-      uTime: { value: 0 },
-      fps: { value: 60 },
-      totalFrames: { value: 48 },
-    };
-
-    // Keep the same external API pattern as Character.js
-    // (useful if you later hook debug UI to `this.material.uniforms.*`).
-    this.material.uniforms = this.uniforms;
-
-    this.batchedMesh.customDepthMaterial = new THREE.MeshDepthMaterial({
-      depthPacking: THREE.RGBADepthPacking,
-    });
-
-    this.configureMaterialShader(this.material);
-    this.configureMaterialShader(this.batchedMesh.customDepthMaterial);
-
-    // Ensure onBeforeCompile runs at least once on next render
-    this.material.needsUpdate = true;
-    this.batchedMesh.customDepthMaterial.needsUpdate = true;
-  };
-
-  configureMaterialShader = (material) => {
-    material.onBeforeCompile = (shader) => {
-      // Hook our uniforms into the program uniforms (same pattern as Character.js)
-      Object.assign(shader.uniforms, this.uniforms);
-      Object.assign(shader.uniforms, this.enemy.uniforms);
-
-      shader.vertexShader = shader.vertexShader.replace(
-        "#include <common>",
-        `${declarationsVertexShaderChunk}\n${this.enemy.declarationsShaderChunk}\n`
-      );
-
-      shader.vertexShader = shader.vertexShader.replace(
-        "#include <project_vertex>",
-        `${this.enemy.logicShaderChunk}\n`
-      );
-    };
-  };
-
-  update = () => {
-    const t = this.time.elapsed;
-    this.uniforms.uTime.value = t;
-
-    this.enemy.update();
-
-    // this.santaClous.update();
   };
 }

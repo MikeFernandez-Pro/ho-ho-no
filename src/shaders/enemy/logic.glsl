@@ -1,6 +1,5 @@
 vec4 mvPosition;
 
-
 float sx = length(batchingMatrix[0].xyz);
 float sy = length(batchingMatrix[1].xyz);
 float sz = length(batchingMatrix[2].xyz);
@@ -13,7 +12,7 @@ if (abs(sx - 2.0) < 0.001 ) {
    vec3 pos = texture(uVATWalk, vec2(uv1.x, uv1.y - frame)).xzy;
    mvPosition = removeScale(batchingMatrix) * vec4(pos, 1.0);
 
-} else if (abs(sx - 3.0) < 0.001) {
+} else {
 
    if (sy > 0.002) {
       float hitTime = abs(sy);
@@ -34,14 +33,12 @@ if (abs(sx - 2.0) < 0.001 ) {
       vec3 pos = mix(posWalk, posDeath, blendT);
       mvPosition = removeScale(batchingMatrix) * vec4(pos, 1.0);
    } else {
-      mvPosition = removeScale(batchingMatrix) * vec4(transformed, 1.0);
+      mvPosition = batchingMatrix* vec4(transformed, 1.0);
    }
 
-} else {
+} 
 
-   mvPosition = batchingMatrix * vec4(transformed, 1.0);
 
-}
 
 mvPosition = modelViewMatrix * mvPosition;
 gl_Position = projectionMatrix * mvPosition;
