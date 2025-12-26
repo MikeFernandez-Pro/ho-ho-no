@@ -24,6 +24,7 @@
   "dependencies": {
     "@dimforge/rapier3d": "^0.19.3",
     "gsap": "^3.14.1",
+    "howler": "^2.2.4",
     "lil-gui": "^0.19.2",
     "three": "0.182.0",
     "three-custom-shader-material": "^6.4.0",

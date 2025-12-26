@@ -1,3 +1,7 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Just+Another+Hand&display=swap');
+
+
 * {
   margin: 0;
   padding: 0;
@@ -5,9 +9,8 @@
 
 html,
 body, * {
-  overflow: hidden;
   cursor: url('/ui/aim.png') 24 24, auto;
-}
+} 
 
 .webgl {
   position: fixed;
@@ -23,10 +26,21 @@ body, * {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 1rem;
+  margin: clamp(1rem, 3vw, 3rem) clamp(1rem, 3.5vw, 3.5rem);
+  gap: clamp(0.5rem, 1vw, 1rem);
+    
+  .counter-text {
+    font-family: "Just Another Hand", cursive;
+    font-weight: 400;
+    font-style: normal;  
+
+    font-size: clamp(2rem, 4vw, 4rem);
+    color: #fff;
+    text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  }
 
   img {
-    width: 5rem;
+    width: clamp(4rem, 6.5vw, 6.5rem);
     height: auto;
   }
 }

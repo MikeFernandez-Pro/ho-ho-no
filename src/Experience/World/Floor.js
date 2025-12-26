@@ -66,7 +66,7 @@ export default class Floor {
         uniforms: {
           uNoiseTexture: { value: this.noiseTexture },
           uColor1: { value: new THREE.Color("#d0f1ff") },
-          uColor2: { value: new THREE.Color("#9dbad2") },
+          uColor2: { value: new THREE.Color("#88b0d2") },
           uScale: { value: 4.0 },
         },
       })
@@ -78,8 +78,8 @@ export default class Floor {
 
     if (this.debug.active) {
       const parameters = {
-        color1: "#d0f1ff",
-        color2: "#9dbad2",
+        color1: this.floor.material.uniforms.uColor1.value,
+        color2: this.floor.material.uniforms.uColor2.value,
         scale: 4.0,
       };
 

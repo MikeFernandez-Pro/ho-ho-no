@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { Howl } from "howler";
 
 import Debug from "#utils/Debug.js";
 import Sizes from "#utils/Sizes.js";
@@ -11,7 +12,16 @@ import Perf from "#utils/Perf.js";
 import sources from "#experience/sources.js";
 import Physics from "#utils/physics.js";
 import Postprocessing from "#experience/postprocessing/postprocessing.js";
+import KillsCounter from "#experience/ui/KillsCounter.js";
 // import PhysicsDebug from "#utils/physicsDebug.js";
+
+const backgroundMusic = new Howl({
+  src: ["/audio/music/christmas.mp3"],
+  volume: 0.1,
+  loop: true,
+  autoplay: true,
+  rate: 0.6,
+});
 
 let instance = null;
 
@@ -42,6 +52,7 @@ export default class Experience {
     this.physics = new Physics();
     // this.physicsDebug = new PhysicsDebug();
     this.world = new World();
+    this.killsCounter = new KillsCounter();
 
     // Resize event
     this.sizes.addEventListener("resize", this.resize);

@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import * as RAPIER from "@dimforge/rapier3d";
+import { Howl } from "howler";
 import Experience from "#experience/Experience.js";
 
 const PROJECTILE_SIZE = 0.4;
@@ -8,6 +9,17 @@ const PROJECTILE_SPEED = 50;
 const PROJECTILE_MAX_DISTANCE = 50;
 
 const SHOOT_OFFSET_LOCAL = new THREE.Vector3(-0.253, 0.596, 0.719);
+
+const hitEnemySound = new Howl({
+  src: ["/audio/soundEffects/hitEnemy.mp3"],
+  volume: 0.2,
+  rate: 1.2,
+});
+
+const hitArenaSound = new Howl({
+  src: ["/audio/soundEffects/hitArena.mp3"],
+  volume: 0.17,
+});
 
 export default class ProjectilesFactory {
   constructor(character) {
@@ -53,6 +65,7 @@ export default class ProjectilesFactory {
         ? event.collider1.userData.id
         : event.collider2.userData.id;
 
+    hitArenaSound.play();
     this.destroyProjectileByInstance(projectileId);
   };
 
@@ -62,6 +75,9 @@ export default class ProjectilesFactory {
 
   enemyHitEventHandler = (event) => {
     // `event.projectile` is a BatchedMesh *instance id* (not an index in `this.list`)
+
+    hitEnemySound.play();
+
     this.destroyProjectileByInstance(event.projectile);
   };
 

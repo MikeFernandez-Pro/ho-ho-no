@@ -1,5 +1,12 @@
 import Experience from "#experience/Experience.js";
+import { Howl } from "howler";
 import * as THREE from "three";
+
+const shootSound = new Howl({
+  // Files in `static/` are served from the site root by Vite (`publicDir`).
+  src: ["/audio/soundEffects/shoot.mp3"],
+  volume: 0.2,
+});
 
 const keysConfigList = {
   ArrowUp: "forward",
@@ -71,13 +78,18 @@ export default class CharacterController extends THREE.EventDispatcher {
       return;
     }
 
+    shootSound.play();
+
     this.isShooting = true;
 
     // Compute the aim point at muzzle height so projectiles can be fired
     // from an offset muzzle while still passing through the cursor.
     const aimPlaneHeight =
       this.character.characterScene.position.y + AIM_HEIGHT_OFFSET;
-    const aimPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -aimPlaneHeight);
+    const aimPlane = new THREE.Plane(
+      new THREE.Vector3(0, 1, 0),
+      -aimPlaneHeight
+    );
     const intersectionPoint = new THREE.Vector3();
 
     const raycaster = new THREE.Raycaster();

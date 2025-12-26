@@ -1,10 +1,24 @@
 import * as THREE from "three";
 import * as RAPIER from "@dimforge/rapier3d";
+import { Howl } from "howler";
 
 import Experience from "#experience/Experience.js";
 
 import declarationsShaderChunk from "../../../shaders/enemy/declarations.glsl?raw";
 import logicShaderChunk from "../../../shaders/enemy/logic.glsl?raw";
+
+const enemiesApproachSound = new Howl({
+  src: ["/audio/soundEffects/enemiesApproach.mp3"],
+  volume: 0.1,
+  loop: true,
+});
+
+const walkingInSnowSound = new Howl({
+  src: ["/audio/soundEffects/walkingInSnow.mp3"],
+  volume: 0.3,
+  loop: true,
+  rate: 0.6,
+});
 
 const ENEMY_MESH_OFFSET = new THREE.Vector3(0, -1, 0);
 const DEAD_SINK_DELAY = 3; // seconds after hit before sinking starts
@@ -17,7 +31,7 @@ const CHASE_SPEED = 3.5;
 
 // Spawning
 const SPAWN_INTERVAL_START = 2.0; // seconds at t=0
-const SPAWN_INTERVAL_END = 0.5; // seconds at t=SPAWN_INTERVAL_RAMP_DURATION
+const SPAWN_INTERVAL_END = 0.4; // seconds at t=SPAWN_INTERVAL_RAMP_DURATION
 const SPAWN_INTERVAL_RAMP_DURATION = 60.0; // seconds (2 minutes)
 const SPAWN_RADIUS = 17; // exact distance from center (0,0,0)
 
@@ -40,6 +54,7 @@ export default class Enemy extends THREE.EventDispatcher {
     this._tmpCharPos = new THREE.Vector3();
     this._tmpSpawnPos = new THREE.Vector3();
     this._tmpCenterPos = new THREE.Vector3(0, 0, 0);
+    this.enemiesApproachSoundActivated = false;
 
     this._nextSpawnTime = 0;
     this._spawnStartTime = 0;
@@ -55,6 +70,11 @@ export default class Enemy extends THREE.EventDispatcher {
     this._nextSpawnTime = this.time.elapsed + SPAWN_INTERVAL_START;
 
     this.physics.addEventListener("collision", this.collisionEventHandler);
+
+    this.walkingInSnowSoundTimeout = setTimeout(() => {
+      enemiesApproachSound.play();
+      walkingInSnowSound.play();
+    }, 1000);
   }
 
   setTextures() {
@@ -79,6 +99,7 @@ export default class Enemy extends THREE.EventDispatcher {
       this.enemyMeshMaterial
     );
     this.enemyBatchedMesh.castShadow = true;
+    this.enemyBatchedMesh.frustumCulled = false;
     this.scene.add(this.enemyBatchedMesh);
   }
 
@@ -298,6 +319,10 @@ export default class Enemy extends THREE.EventDispatcher {
     //   spawnedThisFrame < maxSpawnsPerFrame &&
     //   this.time.elapsed >= this._nextSpawnTime
     // ) {
+    //   if (!this.enemiesApproachSoundActivated) {
+    //     enemiesApproachSound.play();
+    //     this.enemiesApproachSoundActivated = true;
+    //   }
     //   const spawnPos = this._computeSpawnPosition(characterRb);
     //   // clone so list stores a stable snapshot, not our temp vector
     //   this.createEnnemie(spawnPos.clone());
