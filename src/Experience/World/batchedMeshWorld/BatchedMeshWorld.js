@@ -36,12 +36,7 @@ export default class BatchedMeshWorld {
   };
 
   setBatchedMesh = () => {
-    this.batchedMesh = new THREE.BatchedMesh(
-      10000,
-      1000000,
-      1000000,
-      this.material
-    );
+    this.batchedMesh = new THREE.BatchedMesh(2, 166990, 461000, this.material);
     this.batchedMesh.castShadow = true;
     this.batchedMesh.receiveShadow = true;
 

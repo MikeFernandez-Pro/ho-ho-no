@@ -81,11 +81,12 @@ export default class Elf {
 
   setBatchedMesh() {
     this.elfBatchedMesh = new THREE.BatchedMesh(
-      20,
-      100000,
-      100000000,
+      15,
+      3767,
+      15522,
       this.elfMeshMaterial
     );
+
     this.elfBatchedMesh.castShadow = true;
     this.scene.add(this.elfBatchedMesh);
   }
@@ -99,17 +100,21 @@ export default class Elf {
   }
 
   setInstances() {
-    this.cherringElvesInstances = [];
-    for (const position of CheeringElfsDatas) {
+    this.cherringElvesInstances = Array(CheeringElfsDatas.length).fill(
+      undefined
+    );
+    for (const [index, position] of CheeringElfsDatas.entries()) {
       const instanceID = this.elfBatchedMesh.addInstance(this.elfGeometryID);
       const matrix = new THREE.Matrix4();
       matrix.setPosition(position);
       this.elfBatchedMesh.setMatrixAt(instanceID, matrix);
-      this.cherringElvesInstances.push(instanceID);
+      this.cherringElvesInstances[index] = instanceID;
     }
 
-    this.sittingElvesInstances = [];
-    for (const elfData of SittingElvesDatas) {
+    this.sittingElvesInstances = Array(SittingElvesDatas.length).fill(
+      undefined
+    );
+    for (const [index, elfData] of SittingElvesDatas.entries()) {
       const instanceID = this.elfBatchedMesh.addInstance(this.elfGeometryID);
       const matrix = new THREE.Matrix4();
       const position = new THREE.Vector3(
@@ -123,7 +128,7 @@ export default class Elf {
       const scale = new THREE.Vector3(2, 1, 1);
       matrix.compose(position, quaternion, scale);
       this.elfBatchedMesh.setMatrixAt(instanceID, matrix);
-      this.sittingElvesInstances.push(instanceID);
+      this.sittingElvesInstances[index] = instanceID;
     }
   }
 

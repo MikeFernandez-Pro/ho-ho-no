@@ -73,9 +73,9 @@ export default class Enemy extends THREE.EventDispatcher {
 
   setBatchedMesh() {
     this.enemyBatchedMesh = new THREE.BatchedMesh(
-      1000,
-      100000,
-      1000000,
+      150,
+      5660,
+      18858,
       this.enemyMeshMaterial
     );
     this.enemyBatchedMesh.castShadow = true;
