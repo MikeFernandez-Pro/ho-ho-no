@@ -21,7 +21,7 @@ const walkingInSnowSound = new Howl({
 });
 
 const ENEMY_MESH_OFFSET = new THREE.Vector3(0, -1, 0);
-const DEAD_SINK_DELAY = 3; // seconds after hit before sinking starts
+const DEAD_SINK_DELAY = 1.2; // seconds after hit before sinking starts
 const DEAD_SINK_TARGET_Y = -3;
 const DEAD_SINK_SPEED = 1; // units / second
 const DEATH_BLEND_DURATION = 0.1; // seconds (stored in scale.z, used in shader)
