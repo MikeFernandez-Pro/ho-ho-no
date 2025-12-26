@@ -2,7 +2,8 @@ import * as THREE from "three";
 import Experience from "#experience/Experience.js";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
-const FOLLOW_LERP = 0.05; // 0..1 (higher = snappier)
+const FOLLOW_LERP = 0.02; // 0..1 (higher = snappier)
+const CAMERA_OFFSET = new THREE.Vector3(0, 15, 20);
 
 export default class Camera {
   constructor() {
@@ -27,15 +28,20 @@ export default class Camera {
       0.1,
       500
     );
-    this.instance.position.set(0, 15, 20);
+    this.instance.position.set(
+      CAMERA_OFFSET.x,
+      CAMERA_OFFSET.y,
+      CAMERA_OFFSET.z
+    );
     this.scene.add(this.instance);
   }
 
   setControls() {
     this.controls = new OrbitControls(this.instance, this.canvas);
-    this.controls.enableDamping = true;
+    this.controls.enableDamping = false;
     this.controls.enableZoom = true;
     this.controls.enablePan = true;
+    this.controls.enabled = false;
   }
 
   resize() {

@@ -27,12 +27,11 @@ export default class Environment {
     }
 
     this.setSunLight();
-
-    this.scene.add(new THREE.AmbientLight("#ffffff", 1));
+    this.setAmbientLight();
   }
 
   setSunLight() {
-    this.sunLight = new THREE.DirectionalLight("#ffffff", 2.5);
+    this.sunLight = new THREE.DirectionalLight("#d0e3f8", 3.5);
     this.sunLight.castShadow = true;
     // Shadow quality depends mostly on (a) mapSize and (b) how tightly the shadow camera
     // bounds the area where you actually need shadows.
@@ -61,26 +60,18 @@ export default class Environment {
     // Debug
     if (this.debug.active) {
       const parameters = {
-        followCamera: this.followCamera,
-        intensity: 2.5,
-        position: {
-          x: 10,
-          y: 10,
-          z: 10,
-        },
-        shadow: {
-          normalBias: 0.02,
-        },
+        directionLightColor: `#${this.sunLight.color.getHexString()}`,
+        directionLightIntensity: this.sunLight.intensity,
       };
 
       this.debugFolder
-        .addBinding(parameters, "followCamera")
+        .addBinding(parameters, "directionLightColor")
         .on("change", (ev) => {
-          this.followCamera = ev.value;
+          this.sunLight.color = new THREE.Color(ev.value);
         });
 
       this.debugFolder
-        .addBinding(parameters, "intensity", {
+        .addBinding(parameters, "directionLightIntensity", {
           min: 0,
           max: 10,
           step: 0.001,
@@ -88,51 +79,41 @@ export default class Environment {
         .on("change", (ev) => {
           this.sunLight.intensity = ev.value;
         });
+    }
+  }
+
+  setAmbientLight() {
+    this.ambientLight = new THREE.AmbientLight("#44a4ff", 2.5);
+    this.scene.add(this.ambientLight);
+
+    console.log(this.ambientLight.color.getHexString());
+
+    if (this.debug.active) {
+      const parameters = {
+        ambientLightColor: `#${this.ambientLight.color.getHexString()}`,
+        ambientLightIntensity: this.ambientLight.intensity,
+      };
 
       this.debugFolder
-        .addBinding(parameters.position, "x", {
-          min: -5,
-          max: 5,
-          step: 0.001,
-        })
+        .addBinding(parameters, "ambientLightColor")
         .on("change", (ev) => {
-          if (!this.followCamera) this.sunLight.position.x = ev.value;
+          this.ambientLight.color = new THREE.Color(ev.value);
         });
 
       this.debugFolder
-        .addBinding(parameters.position, "y", {
-          min: -5,
-          max: 5,
+        .addBinding(parameters, "ambientLightIntensity", {
+          min: 0,
+          max: 10,
           step: 0.001,
         })
         .on("change", (ev) => {
-          if (!this.followCamera) this.sunLight.position.y = ev.value;
-        });
-
-      this.debugFolder
-        .addBinding(parameters.position, "z", {
-          min: -5,
-          max: 5,
-          step: 0.001,
-        })
-        .on("change", (ev) => {
-          if (!this.followCamera) this.sunLight.position.z = ev.value;
-        });
-
-      this.debugFolder
-        .addBinding(parameters.shadow, "normalBias", {
-          min: -0.1,
-          max: 0.1,
-          step: 0.001,
-        })
-        .on("change", (ev) => {
-          this.sunLight.shadow.normalBias = ev.value;
+          this.ambientLight.intensity = ev.value;
         });
     }
   }
 
   update() {
-    if (!this.sunLight || !this.followCamera || !this.camera?.instance) return;
+    if (!this.sunLight || !this.camera?.instance) return;
 
     // Light position follows camera with a fixed offset (default: 15,30,20)
     this._tmpLightPos

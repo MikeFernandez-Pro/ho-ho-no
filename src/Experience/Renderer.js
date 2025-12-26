@@ -9,8 +9,10 @@ export default class Renderer {
     this.scene = this.experience.scene;
     this.camera = this.experience.camera;
     this.postprocessing = this.experience.postprocessing;
+    this.debug = this.experience.debug;
 
     this.setInstance();
+    this.setDebug();
   }
 
   setInstance() {
@@ -27,10 +29,40 @@ export default class Renderer {
     this.instance.setPixelRatio(this.sizes.pixelRatio);
   }
 
+  setDebug() {
+    if (this.debug.active) {
+      this.debugFolder = this.debug.pane.addFolder({
+        title: "Renderer",
+        expanded: false,
+      });
+
+      const parameters = {
+        toneMapping: THREE.ACESFilmicToneMapping,
+      };
+
+      this.debugFolder
+        .addBinding(parameters, "toneMapping", {
+          // Tweakpane expects either an object map {label: value} or
+          // an array of {text, value} items — not a raw array of values.
+          options: {
+            None: THREE.NoToneMapping,
+            Linear: THREE.LinearToneMapping,
+            Reinhard: THREE.ReinhardToneMapping,
+            ACESFilmic: THREE.ACESFilmicToneMapping,
+          },
+        })
+        .on("change", (ev) => {
+          this.instance.toneMapping = ev.value;
+        });
+    }
+  }
+
   resize() {
     this.instance.setSize(this.sizes.width, this.sizes.height);
     this.instance.setPixelRatio(this.sizes.pixelRatio);
   }
 
-  update() {}
+  update() {
+    this.instance.render(this.scene, this.camera.instance);
+  }
 }

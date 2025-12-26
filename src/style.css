@@ -4,8 +4,9 @@
 }
 
 html,
-body {
+body, * {
   overflow: hidden;
+  cursor: url('/ui/aim.png') 24 24, auto;
 }
 
 .webgl {

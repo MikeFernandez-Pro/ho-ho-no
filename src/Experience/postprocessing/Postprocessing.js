@@ -15,13 +15,21 @@ export default class Postprocessing {
     this.renderer = this.experience.renderer;
     this.sizes = this.experience.sizes;
 
-    this.renderTarget = new THREE.WebGLRenderTarget(800, 600, {
-      samples: this.renderer.instance.getPixelRatio() === 1 ? 2 : 0,
-    });
+    const size = new THREE.Vector2();
+    this.renderer.instance.getSize(size);
+
+    const dpr = this.renderer.instance.getPixelRatio();
+    const isWebGL2 = this.renderer.instance.capabilities.isWebGL2;
+
+    this.renderTarget = new THREE.WebGLRenderTarget(
+      Math.floor(size.x * dpr),
+      Math.floor(size.y * dpr),
+      { samples: isWebGL2 ? (dpr <= 1 ? 4 : 0) : 0 }
+    );
 
     this.effectComposer = new EffectComposer(
-      this.renderer.instance
-      // this.renderTarget
+      this.renderer.instance,
+      this.renderTarget
     );
     this.effectComposer.setSize(this.sizes.width, this.sizes.height);
     this.effectComposer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -33,15 +41,15 @@ export default class Postprocessing {
     this.effectComposer.addPass(this.vignettePass);
 
     // Anti-aliasing (operate in linear space before tone mapping / output conversion)
-    // if (
-    //   this.renderer.instance.getPixelRatio() === 1 &&
-    //   !this.renderer.instance.capabilities.isWebGL2
-    // ) {
-    //   const smaaPass = new SMAAPass();
-    //   this.effectComposer.addPass(smaaPass);
+    if (
+      this.renderer.instance.getPixelRatio() === 1 &&
+      !this.renderer.instance.capabilities.isWebGL2
+    ) {
+      const smaaPass = new SMAAPass();
+      this.effectComposer.addPass(smaaPass);
 
-    //   console.log("Using SMAA");
-    // }
+      console.log("Using SMAA");
+    }
 
     // Final output: tone mapping + output color space conversion
     this.outputPass = new OutputPass();
@@ -51,6 +59,15 @@ export default class Postprocessing {
   resize() {
     this.effectComposer.setSize(this.sizes.width, this.sizes.height);
     this.effectComposer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+    const size = new THREE.Vector2();
+    this.renderer.instance.getSize(size);
+    const dpr = this.renderer.instance.getPixelRatio();
+
+    this.renderTarget.setSize(
+      Math.floor(size.x * dpr),
+      Math.floor(size.y * dpr)
+    );
   }
 
   update() {

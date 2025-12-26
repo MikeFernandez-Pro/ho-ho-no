@@ -57,7 +57,7 @@ export default class ProjectilesFactory {
   };
 
   clickEventHandler = (event) => {
-    this.createProjectile(event.position, event.angle);
+    this.createProjectile(event.position, event.angle, event.aimPoint);
   };
 
   enemyHitEventHandler = (event) => {
@@ -116,7 +116,7 @@ export default class ProjectilesFactory {
     return { rigidBody: projectileRigidBody, collider: projectileCollider };
   }
 
-  createProjectile(position, angle) {
+  createProjectile(position, angle, aimPoint = null) {
     const projectileInstanceID = this.batchedMeshWorld.batchedMesh.addInstance(
       this.geometryBatchedMeshId
     );
@@ -127,19 +127,33 @@ export default class ProjectilesFactory {
       angle
     );
 
-    // character forward (based on same yaw)
-    const directionVector = new THREE.Vector3(0, 0, 1)
-      .applyQuaternion(yawQuat)
-      .normalize();
-
     // rotate the local offset into world space
     const offsetWorld = SHOOT_OFFSET_LOCAL.clone().applyQuaternion(yawQuat);
 
     const spawnPosition = position.clone().add(offsetWorld);
 
+    // Shoot toward the actual aim point (cursor ray intersection), not just "forward".
+    // This keeps shots aligned even when the muzzle is offset from character center.
+    const directionVector = new THREE.Vector3();
+    if (aimPoint) {
+      directionVector.subVectors(aimPoint, spawnPosition);
+      // Project to XZ because we move projectiles horizontally (y velocity is forced to 0)
+      directionVector.y = 0;
+      if (directionVector.lengthSq() === 0) {
+        directionVector.set(0, 0, 1).applyQuaternion(yawQuat);
+      }
+      directionVector.normalize();
+    } else {
+      // Fallback: character forward (based on yaw)
+      directionVector.set(0, 0, 1).applyQuaternion(yawQuat).normalize();
+    }
+
+    // Make the rigid body face the actual travel direction
+    const projectileYaw = Math.atan2(directionVector.x, directionVector.z);
+
     const { rigidBody, collider } = this.createProjectileRigidBody(
       spawnPosition,
-      angle,
+      projectileYaw,
       projectileInstanceID
     );
 

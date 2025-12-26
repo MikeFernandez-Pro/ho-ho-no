@@ -13,8 +13,8 @@ const keysConfigList = {
 };
 
 const SPEED = 7.5;
-// Keep this in sync with ProjectilesFactory's SHOOT_OFFSET_LOCAL.y
-const AIM_HEIGHT_OFFSET = 0.7;
+// Keep this in sync with ProjectilesFactory's SHOOT_OFFSET_LOCAL.y (muzzle height)
+const AIM_HEIGHT_OFFSET = 0.596;
 
 export default class CharacterController extends THREE.EventDispatcher {
   constructor(character) {
@@ -72,10 +72,23 @@ export default class CharacterController extends THREE.EventDispatcher {
     }
 
     this.isShooting = true;
+
+    // Compute the aim point at muzzle height so projectiles can be fired
+    // from an offset muzzle while still passing through the cursor.
+    const aimPlaneHeight =
+      this.character.characterScene.position.y + AIM_HEIGHT_OFFSET;
+    const aimPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -aimPlaneHeight);
+    const intersectionPoint = new THREE.Vector3();
+
+    const raycaster = new THREE.Raycaster();
+    raycaster.setFromCamera(this.mouse, this.camera.instance);
+    const hit = raycaster.ray.intersectPlane(aimPlane, intersectionPoint);
+
     this.dispatchEvent({
       type: "shoot",
       position: this.character.characterScene.position.clone(),
       angle: this.character.characterScene.rotation.y,
+      aimPoint: hit ? intersectionPoint.clone() : null,
     });
   };
 
