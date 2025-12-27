@@ -12,8 +12,8 @@ export default class GameTimer {
     const minutes = Math.floor(totalSeconds / 60);
     const seconds = totalSeconds % 60;
 
-    this.timerText.textContent = `${minutes} : ${seconds
-      .toString()
-      .padStart(2, "0")}`;
+    this.timeSurvived = `${minutes} : ${seconds.toString().padStart(2, "0")}`;
+
+    this.timerText.textContent = this.timeSurvived;
   }
 }

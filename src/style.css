@@ -5,17 +5,22 @@
 * {
   margin: 0;
   padding: 0;
+  box-sizing: border-box;
 }
 
 html,
-body, * {
+body {
   cursor: url('/ui/aim.png') 24 24, auto;
+  margin: 0;
+  overflow: hidden;
 } 
 
 .webgl {
   position: fixed;
-  top: 0;
-  left: 0;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
   outline: none;
 }
 
@@ -69,7 +74,6 @@ body, * {
   width: 100%;
   height: 100%;
   place-items: center;
-  background-color: #282836;
 
   .restart-button { 
       background: none;
@@ -149,6 +153,32 @@ body, * {
   }
 
 
+}
+
+.game-over-overlay{
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: #282836;
+
+  /* start fully hidden (radius 0) */
+  --r: 0vmax;
+
+  /* Reveal animation (GSAP animates --r) */
+  -webkit-clip-path: circle(var(--r) at 50% 50%);
+          clip-path: circle(var(--r) at 50% 50%);
+
+  /* Keep in DOM so the animation can run (avoid display:none) */
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  will-change: clip-path;
+}
+
+.game-over-overlay.is-active {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
 }
 
   

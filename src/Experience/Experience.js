@@ -14,6 +14,7 @@ import Physics from "#utils/physics.js";
 import Postprocessing from "#experience/postprocessing/postprocessing.js";
 import KillsCounter from "#experience/ui/KillsCounter.js";
 import GameTimer from "#experience/ui/GameTimer.js";
+import GameOver from "#experience/ui/GameOver.js";
 // import PhysicsDebug from "#utils/physicsDebug.js";
 
 const backgroundMusic = new Howl({
@@ -54,6 +55,7 @@ export default class Experience {
     this.world = new World();
     this.killsCounter = new KillsCounter();
     this.gameTimer = new GameTimer();
+    this.gameOver = new GameOver();
 
     // Resize event
     this.sizes.addEventListener("resize", this.resize);
