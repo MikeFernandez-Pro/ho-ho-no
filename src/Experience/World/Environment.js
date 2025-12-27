@@ -86,8 +86,6 @@ export default class Environment {
     this.ambientLight = new THREE.AmbientLight("#ffffff", 1.411);
     this.scene.add(this.ambientLight);
 
-    console.log(this.ambientLight.color.getHexString());
-
     if (this.debug.active) {
       const parameters = {
         ambientLightColor: `#${this.ambientLight.color.getHexString()}`,

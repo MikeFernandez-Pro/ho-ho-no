@@ -3,6 +3,7 @@ import * as RAPIER from "@dimforge/rapier3d";
 import { Howl } from "howler";
 
 import Experience from "#experience/Experience.js";
+import { CollisionGroup, makeCollisionGroups } from "#utils/collisionGroups.js";
 
 import declarationsShaderChunk from "../../../shaders/enemy/declarations.glsl?raw";
 import logicShaderChunk from "../../../shaders/enemy/logic.glsl?raw";
@@ -94,13 +95,12 @@ export default class Enemy extends THREE.EventDispatcher {
 
   setBatchedMesh() {
     this.enemyBatchedMesh = new THREE.BatchedMesh(
-      150,
+      250,
       5660,
       18858,
       this.enemyMeshMaterial
     );
     this.enemyBatchedMesh.castShadow = true;
-    this.enemyBatchedMesh.frustumCulled = false;
 
     this.scene.add(this.enemyBatchedMesh);
   }
@@ -207,26 +207,49 @@ export default class Enemy extends THREE.EventDispatcher {
   };
 
   collisionEventHandler = (event) => {
-    const c1Type = event.collider1.userData.type;
-    const c2Type = event.collider2.userData.type;
+    const c1Type = event.collider1?.userData?.type;
+    const c2Type = event.collider2?.userData?.type;
+
+    // Ignore arena/ground noise here as a safety net (even though collision groups
+    // should prevent enemy-arena contacts entirely).
+    if (
+      (c1Type === "enemy" && (c2Type === "arena" || c2Type === "ground")) ||
+      (c2Type === "enemy" && (c1Type === "arena" || c1Type === "ground"))
+    ) {
+      return;
+    }
+
     const isEnemyProjectile =
       (c1Type === "enemy" && c2Type === "projectile") ||
       (c1Type === "projectile" && c2Type === "enemy");
 
-    if (!isEnemyProjectile) return;
+    if (isEnemyProjectile) {
+      const enemyCollider =
+        c1Type === "enemy" ? event.collider1 : event.collider2;
+      const projectileCollider =
+        c1Type === "projectile" ? event.collider1 : event.collider2;
 
-    const enemyCollider =
-      c1Type === "enemy" ? event.collider1 : event.collider2;
-    const projectileCollider =
-      c1Type === "projectile" ? event.collider1 : event.collider2;
+      this.dispatchEvent({
+        type: "enemyHit",
+        projectile: projectileCollider.userData.id,
+      });
 
-    this.dispatchEvent({
-      type: "enemyHit",
-      projectile: projectileCollider.userData.id,
-    });
+      // Freeze transform + remove physics so we stop copying RB position each frame
+      this.killEnemyByInstanceId(enemyCollider.userData.id);
 
-    // Freeze transform + remove physics so we stop copying RB position each frame
-    this.killEnemyByInstanceId(enemyCollider.userData.id);
+      return;
+    }
+
+    const isEnemyCharacter =
+      (c1Type === "enemy" && c2Type === "character") ||
+      (c1Type === "character" && c2Type === "enemy");
+
+    if (isEnemyCharacter) {
+      this.dispatchEvent({
+        type: "enemyHitCharacter",
+      });
+      return;
+    }
   };
 
   createEnnemieRigidBody(spawnPosition, enemyInstanceID) {
@@ -249,6 +272,17 @@ export default class Enemy extends THREE.EventDispatcher {
     const enemyCollider = this.physics.world.createCollider(
       enemyColliderDesc,
       enemyRigidBody
+    );
+    // Enable collision events so enemy-character contacts are detectable.
+    enemyCollider.setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS);
+    // Enemies should collide with character/projectiles/ground, but NOT the arena mesh.
+    enemyCollider.setCollisionGroups(
+      makeCollisionGroups(
+        CollisionGroup.ENEMY,
+        CollisionGroup.GROUND |
+          CollisionGroup.CHARACTER |
+          CollisionGroup.PROJECTILE
+      )
     );
     enemyCollider.userData = {
       type: "enemy",

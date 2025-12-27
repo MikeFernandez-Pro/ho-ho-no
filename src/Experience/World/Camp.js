@@ -2,6 +2,7 @@ import * as THREE from "three";
 import * as RAPIER from "@dimforge/rapier3d";
 
 import Experience from "#experience/Experience.js";
+import { CollisionGroup, makeCollisionGroups } from "#utils/collisionGroups.js";
 
 export default class Camp {
   constructor() {
@@ -41,7 +42,20 @@ export default class Camp {
 
     // Create the ground
     let groundColliderDesc = RAPIER.ColliderDesc.cuboid(100, 0.5, 100);
-    this.experience.physics.world.createCollider(groundColliderDesc, rigidBody);
+    this.groundCollider = this.experience.physics.world.createCollider(
+      groundColliderDesc,
+      rigidBody
+    );
+    // Keep ground collisions for everyone that needs to stand / interact with it.
+    this.groundCollider.setCollisionGroups(
+      makeCollisionGroups(
+        CollisionGroup.GROUND,
+        CollisionGroup.ENEMY |
+          CollisionGroup.CHARACTER |
+          CollisionGroup.PROJECTILE
+      )
+    );
+    this.groundCollider.userData = { type: "ground" };
 
     // Create the arena collider
     this.arenaColliderMesh = this.resources.items.arenaColliderModel;
@@ -59,6 +73,14 @@ export default class Camp {
     // Make sure collision events can be generated for interactions with this collider.
     // (Projectiles enable collision events too, but this makes debugging clearer.)
     this.arenaCollider.setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS);
+    // Arena should block the character & stop projectiles, but enemies should pass through
+    // so they don't get stuck and can reach the character reliably.
+    this.arenaCollider.setCollisionGroups(
+      makeCollisionGroups(
+        CollisionGroup.ARENA,
+        CollisionGroup.CHARACTER | CollisionGroup.PROJECTILE
+      )
+    );
     this.arenaCollider.userData = {
       type: "arena",
     };

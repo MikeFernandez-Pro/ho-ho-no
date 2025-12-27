@@ -2,6 +2,7 @@ import * as THREE from "three";
 import * as RAPIER from "@dimforge/rapier3d";
 import { Howl } from "howler";
 import Experience from "#experience/Experience.js";
+import { CollisionGroup, makeCollisionGroups } from "#utils/collisionGroups.js";
 
 const PROJECTILE_SIZE = 0.4;
 const PROJECTILE_COLLIDER_SIZE = PROJECTILE_SIZE * 0.5;
@@ -123,6 +124,14 @@ export default class ProjectilesFactory {
       projectileRigidBody
     );
     projectileCollider.setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS);
+    // Projectiles should hit enemies + arena (ground is optional; we keep it off to
+    // preserve existing behavior where only arena impacts destroy projectiles).
+    projectileCollider.setCollisionGroups(
+      makeCollisionGroups(
+        CollisionGroup.PROJECTILE,
+        CollisionGroup.ENEMY | CollisionGroup.ARENA
+      )
+    );
 
     projectileCollider.userData = {
       type: "projectile",

@@ -1,11 +1,17 @@
 import * as THREE from "three";
 import * as RAPIER from "@dimforge/rapier3d";
+import { Howl } from "howler";
 
 import Experience from "#experience/Experience.js";
+import { CollisionGroup, makeCollisionGroups } from "#utils/collisionGroups.js";
 import CharacterAnimationController from "./CharacterAnimationController.js";
 import CharacterController from "./CharacterController.js";
 import ProjectilesFactory from "../projectiles/ProjectilesFactory.js";
 
+const gameOverSound = new Howl({
+  src: ["/audio/soundEffects/hitCharacter.mp3"],
+  volume: 0.2,
+});
 export default class Character {
   constructor() {
     this.experience = new Experience();
@@ -16,6 +22,9 @@ export default class Character {
     this.physics = this.experience.physics;
     this.gradientTexture = this.experience.resources.items.gradientTexture;
     this.fiveToneTexture = this.experience.resources.items.fiveToneTexture;
+    this.enemy = this.experience.world.enemy;
+
+    this.isGameOver = false;
 
     if (this.debug.active) {
       this.debugFolder = this.debug.pane.addFolder({
@@ -29,7 +38,19 @@ export default class Character {
     this.setPhysics();
     this.setCharacterController();
     this.setProjectilesFactory();
+    this.enemy.addEventListener(
+      "enemyHitCharacter",
+      this.enemyHitCharacterEventHandler
+    );
   }
+
+  enemyHitCharacterEventHandler = () => {
+    if (this.isGameOver) {
+      return;
+    }
+    this.isGameOver = true;
+    gameOverSound.play();
+  };
 
   setModel() {
     this.resource = this.resources.items.characterModel;
@@ -79,6 +100,17 @@ export default class Character {
       this.characterColliderDesc,
       this.characterRigidBody
     );
+    // Character should collide with the arena/ground/enemies (projectiles are ignored).
+    this.characterCollider.setCollisionGroups(
+      makeCollisionGroups(
+        CollisionGroup.CHARACTER,
+        CollisionGroup.ARENA | CollisionGroup.GROUND | CollisionGroup.ENEMY
+      )
+    );
+
+    this.characterCollider.userData = {
+      type: "character",
+    };
   }
 
   setCharacterController() {
