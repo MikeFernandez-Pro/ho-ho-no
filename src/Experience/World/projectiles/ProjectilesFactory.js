@@ -17,6 +17,11 @@ const hitEnemySound = new Howl({
   rate: 1.2,
 });
 
+const enemyScreamSound = new Howl({
+  src: ["/audio/soundEffects/enemyScream2.mp3"],
+  volume: 0.2,
+});
+
 const hitArenaSound = new Howl({
   src: ["/audio/soundEffects/hitArena.mp3"],
   volume: 0.17,
@@ -78,6 +83,7 @@ export default class ProjectilesFactory {
     // `event.projectile` is a BatchedMesh *instance id* (not an index in `this.list`)
 
     hitEnemySound.play();
+    Math.random() < 0.1 && enemyScreamSound.play();
 
     this.destroyProjectileByInstance(event.projectile);
   };

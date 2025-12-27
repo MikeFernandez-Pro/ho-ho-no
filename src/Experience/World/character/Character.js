@@ -9,8 +9,9 @@ import CharacterController from "./CharacterController.js";
 import ProjectilesFactory from "../projectiles/ProjectilesFactory.js";
 
 const gameOverSound = new Howl({
-  src: ["/audio/soundEffects/hitCharacter.mp3"],
-  volume: 0.2,
+  src: ["/audio/soundEffects/hitCharacter.wav"],
+  volume: 0.6,
+  rate: 0.8,
 });
 export default class Character {
   constructor() {

@@ -8,7 +8,7 @@ const VignetteShader = {
     uAspect: { value: 1.0 },
     // Start closer to center by lowering uRadius, and control falloff with uSoftness.
     // Typical: uRadius ~ 0.35-0.55, uSoftness ~ 0.2-0.5
-    uRadius: { value: 0.283 },
+    uRadius: { value: 0.46 },
     uSoftness: { value: 1 },
     // How much darkening at the edges (0 = none, 1 = full)
     uDarkness: { value: 1 },

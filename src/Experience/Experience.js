@@ -21,7 +21,6 @@ const backgroundMusic = new Howl({
   volume: 0.1,
   loop: true,
   autoplay: true,
-  rate: 0.6,
 });
 
 let instance = null;

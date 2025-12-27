@@ -101,6 +101,7 @@ export default class Enemy extends THREE.EventDispatcher {
       this.enemyMeshMaterial
     );
     this.enemyBatchedMesh.castShadow = true;
+    this.enemyBatchedMesh.frustumCulled = false;
 
     this.scene.add(this.enemyBatchedMesh);
   }
