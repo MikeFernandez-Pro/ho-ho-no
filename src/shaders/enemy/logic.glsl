@@ -1,8 +1,20 @@
 vec4 mvPosition;
 
-float sx = length(batchingMatrix[0].xyz);
-float sy = length(batchingMatrix[1].xyz);
-float sz = length(batchingMatrix[2].xyz);
+// BatchedMesh "instance color" is NOT an attribute like InstancedMesh's `instanceColor`.
+// It's stored in a texture and can be sampled in the vertex stage:
+// - `getBatchingColor( getIndirectIndex( gl_DrawID ) )`
+// This returns exactly what you set via `batchedMesh.setColorAt( instanceId, color )`.
+#ifdef USE_BATCHING_COLOR
+vec3 packed = getBatchingColor( getIndirectIndex( gl_DrawID ) );
+#elif defined( USE_INSTANCING_COLOR )
+vec3 packed = instanceColor.xyz;
+#else
+vec3 packed = vec3( 1.0 );
+#endif
+
+float sx = packed.r;
+float sy = packed.g;
+float sz = packed.b;
 
 // Walk Animation
 if (abs(sx - 2.0) < 0.001 ) {
@@ -10,7 +22,7 @@ if (abs(sx - 2.0) < 0.001 ) {
    float frame = mod(uTime * fps, uTotalFramesWalk) / uTotalFramesWalk;
    frame = 1.0 -frame;
    vec3 pos = texture(uVATWalk, vec2(uv1.x, uv1.y - frame)).xzy;
-   mvPosition = removeScale(batchingMatrix) * vec4(pos, 1.0);
+   mvPosition = batchingMatrix * vec4(pos, 1.0);
 
 } else {
 
@@ -31,7 +43,7 @@ if (abs(sx - 2.0) < 0.001 ) {
       vec3 posDeath = texture(uVATDeath, vec2(uv1.x, uv1.y - deathFrame)).xzy;
 
       vec3 pos = mix(posWalk, posDeath, blendT);
-      mvPosition = removeScale(batchingMatrix) * vec4(pos, 1.0);
+      mvPosition = batchingMatrix * vec4(pos, 1.0);
    } else {
       mvPosition = batchingMatrix* vec4(transformed, 1.0);
    }

@@ -2,15 +2,16 @@
 
    const float TWO_PI = 6.28318530718;
    const float CSM_PI = 3.14159265359;
-   // Must match Elf.js ANGLE_ENCODE_SCALE
-   const float ANGLE_ENCODE_SCALE = 0.01;
 
-   float sx = length(batchingMatrix[0].xyz);
-   float sy = length(batchingMatrix[1].xyz);
-      
-   // sy is used as a custom per-instance channel (encoded near 1.0).
-   // Decode back to a *world-space target yaw* in radians: [0, 2PI).
-   float targetYaw01 = clamp((sy - 1.0) / ANGLE_ENCODE_SCALE, 0.0, 1.0);
+   // BatchedMesh per-instance "color" is stored in a texture, not an attribute.
+   // This returns exactly what JS writes via `elfBatchedMesh.setColorAt( instanceId, color )`.
+   // Packed convention (see `Elf.js`):
+   // - packed.r: type (1.0 = cheering, 2.0 = sitting)
+   // - packed.g: target yaw normalized [0..1] (world-space yaw / TWO_PI)
+   // - packed.b: unused (reserved)
+   vec3 packed = getBatchingColor( getIndirectIndex( gl_DrawID ) );
+   float sx = packed.r;
+   float targetYaw01 = clamp(packed.g, 0.0, 1.0);
    float targetYaw = targetYaw01 * TWO_PI;
 
    // We'll reuse the unscaled batching matrix for both transforming and yaw extraction.

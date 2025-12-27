@@ -41,6 +41,12 @@ const SittingElvesDatas = [
   },
 ];
 
+// Packed convention for BatchedMesh per-instance "color" (shader reads via getBatchingColor):
+// - r: type (1 = cheering, 2 = sitting)
+// - g: target yaw normalized [0..1] (world-space yaw / TWO_PI)
+// - b: reserved
+const TYPE_CHEERING = 1;
+const TYPE_SITTING = 2;
 export default class Elf {
   constructor() {
     this.experience = new Experience();
@@ -63,6 +69,7 @@ export default class Elf {
     this._tmpPosition = new THREE.Vector3();
     this._tmpQuaternion = new THREE.Quaternion();
     this._tmpScale = new THREE.Vector3();
+    this._tmpColor = new THREE.Color();
   }
 
   setTextures() {
@@ -108,6 +115,12 @@ export default class Elf {
       const matrix = new THREE.Matrix4();
       matrix.setPosition(position);
       this.elfBatchedMesh.setMatrixAt(instanceID, matrix);
+
+      // Cheering animation marker (type=1). No yaw needed.
+      this.elfBatchedMesh.setColorAt(
+        instanceID,
+        new THREE.Color(TYPE_CHEERING, 0, 0)
+      );
       this.cherringElvesInstances[index] = instanceID;
     }
 
@@ -128,6 +141,14 @@ export default class Elf {
       const scale = new THREE.Vector3(2, 1, 1);
       matrix.compose(position, quaternion, scale);
       this.elfBatchedMesh.setMatrixAt(instanceID, matrix);
+      // Sitting animation marker (type=2). Initial yaw target = current facing.
+      const yaw01 =
+        THREE.MathUtils.euclideanModulo(elfData.rotationY, Math.PI * 2) /
+        (Math.PI * 2);
+      this.elfBatchedMesh.setColorAt(
+        instanceID,
+        new THREE.Color(TYPE_SITTING, yaw01, 0)
+      );
       this.sittingElvesInstances[index] = instanceID;
     }
   }
@@ -169,6 +190,12 @@ export default class Elf {
         "#include <project_vertex>",
         logicShaderChunk
       );
+
+      // We repurpose BatchedMesh per-instance "color" as packed data (see shader).
+      // Strip fragment chunks that would otherwise tint the material by that color.
+      shader.fragmentShader = shader.fragmentShader
+        .replace("#include <batching_color_fragment>", "")
+        .replace("#include <color_fragment>", "");
     };
   }
 
@@ -220,23 +247,17 @@ export default class Elf {
         this._tmpLookDir.subVectors(characterPosition, this._tmpPosition);
         this._tmpLookDir.y = 0;
         if (this._tmpLookDir.lengthSq() > 1e-8) {
-          // IMPORTANT: don't store yaw directly into scale.y (0..6.28) because it makes the
-          // instance matrix scale jump and can break culling/shadows. Instead, store a tiny,
-          // normalized value near 1.0 and decode it in the shader.
           const yaw = THREE.MathUtils.euclideanModulo(
             Math.atan2(this._tmpLookDir.x, this._tmpLookDir.z),
             Math.PI * 2
           ); // [0, 2PI)
-          const ANGLE_ENCODE_SCALE = 0.01; // keep scale.y in ~[1.0, 1.01)
-          const rotationAngle = (yaw / (Math.PI * 2)) * ANGLE_ENCODE_SCALE;
-          this._tmpScale.y = 1 + rotationAngle;
+          // Store yaw as normalized [0..1] in the BatchedMesh per-instance "color" channel.
+          const yaw01 = yaw / (Math.PI * 2);
+          this.elfBatchedMesh.setColorAt(
+            instanceID,
+            new THREE.Color(TYPE_SITTING, yaw01, 0)
+          );
         }
-        this._tmpMatrix.compose(
-          this._tmpPosition,
-          this._tmpQuaternion,
-          this._tmpScale
-        );
-        this.elfBatchedMesh.setMatrixAt(instanceID, this._tmpMatrix);
       }
     }
     arguments;

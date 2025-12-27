@@ -31,7 +31,7 @@ export default class Environment {
   }
 
   setSunLight() {
-    this.sunLight = new THREE.DirectionalLight("#89e2ff ", 2.281);
+    this.sunLight = new THREE.DirectionalLight("#89e2ff", 2.281);
     this.sunLight.castShadow = true;
     // Shadow quality depends mostly on (a) mapSize and (b) how tightly the shadow camera
     // bounds the area where you actually need shadows.

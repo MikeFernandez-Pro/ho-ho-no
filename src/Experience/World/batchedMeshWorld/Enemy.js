@@ -100,6 +100,7 @@ export default class Enemy extends THREE.EventDispatcher {
     );
     this.enemyBatchedMesh.castShadow = true;
     this.enemyBatchedMesh.frustumCulled = false;
+
     this.scene.add(this.enemyBatchedMesh);
   }
 
@@ -148,6 +149,15 @@ export default class Enemy extends THREE.EventDispatcher {
         "#include <project_vertex>",
         logicShaderChunk
       );
+
+      // NOTE:
+      // We use BatchedMesh per-instance color (`setColorAt`) as *data* on the GPU.
+      // Three's built-in material shaders apply that color in the fragment stage
+      // (tinting the final shading). Strip those chunks so the fragment ignores it.
+      // The attribute/varying still exists for vertex-side usage.
+      shader.fragmentShader = shader.fragmentShader
+        .replace("#include <batching_color_fragment>", "")
+        .replace("#include <color_fragment>", "");
     };
   }
 
@@ -170,12 +180,19 @@ export default class Enemy extends THREE.EventDispatcher {
     this.enemyBatchedMesh.getMatrixAt(enemyInstanceId, m);
     m.decompose(pos, quat, scl);
 
-    // pos.y = 0.;
-    scl.x = 3;
-    scl.y = this.time.elapsed;
-    scl.z = DEATH_BLEND_DURATION;
+    // NOTE: We no longer pack GPU-side state in batchingMatrix scale channels.
+    // Pack it into BatchedMesh per-instance "color" instead (see `logic.glsl`).
+    // Keep `scl` as the real scale.
     m.compose(pos, quat, scl);
     this.enemyBatchedMesh.setMatrixAt(enemyInstanceId, m);
+
+    // sx: 3 => force the shader into the "death" branch (previously scale.x=3)
+    // sy: hitTime (seconds)
+    // sz: blend duration (seconds)
+    this.enemyBatchedMesh.setColorAt(
+      enemyInstanceId,
+      new THREE.Color(3, this.time.elapsed, DEATH_BLEND_DURATION)
+    );
 
     // Remove rigidbody; attached colliders get removed with it in Rapier
     this.physics.world.removeRigidBody(enemy.rigidBody);
@@ -246,12 +263,20 @@ export default class Enemy extends THREE.EventDispatcher {
     );
 
     // Initialize transform at spawn so it doesn't "pop" from origin on the first frame.
-    // Keep scale.x = 2 for walk animation (see shader logic).
-    this._tmpScale.set(2, 1, 1);
+    // Real scale only (shader uses per-instance "color" for animation state/data).
+    this._tmpScale.set(1, 1, 1);
     this._tmpQuat.identity();
     this._tmpPos.copy(spawnPosition).add(ENEMY_MESH_OFFSET);
     this.tmpMatrix.compose(this._tmpPos, this._tmpQuat, this._tmpScale);
     this.enemyBatchedMesh.setMatrixAt(enemyInstanceID, this.tmpMatrix);
+
+    // sx: 2 => walk animation branch
+    // sy: 0 => not hit
+    // sz: blend duration (seconds)
+    this.enemyBatchedMesh.setColorAt(
+      enemyInstanceID,
+      new THREE.Color(2, 0, DEATH_BLEND_DURATION)
+    );
 
     const { rigidBody, collider } = this.createEnnemieRigidBody(
       spawnPosition,
@@ -395,6 +420,7 @@ export default class Enemy extends THREE.EventDispatcher {
         enemy.deadScale
       );
       this.enemyBatchedMesh.setMatrixAt(enemy.instance, this.tmpMatrix);
+
       if (enemy.deadPosition.y <= DEAD_SINK_TARGET_Y) {
         this.enemyBatchedMesh.deleteInstance(enemy.instance);
         this.list.splice(i, 1);
