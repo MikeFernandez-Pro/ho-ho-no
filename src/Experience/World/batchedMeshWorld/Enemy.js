@@ -21,6 +21,7 @@ const walkingInSnowSound = new Howl({
 });
 
 const ENEMY_MESH_OFFSET = new THREE.Vector3(0, -1, 0);
+const ENEMY_MESH_OFFSET_UP = new THREE.Vector3(0, 1, 0);
 const DEAD_SINK_DELAY = 1.2; // seconds after hit before sinking starts
 const DEAD_SINK_TARGET_Y = -3;
 const DEAD_SINK_SPEED = 1; // units / second
@@ -370,7 +371,7 @@ export default class Enemy extends THREE.EventDispatcher {
             this._tmpDir.normalize();
             //  Face the target (yaw only)
             const yaw = Math.atan2(this._tmpDir.x, this._tmpDir.z);
-            this._tmpQuat.setFromAxisAngle(new THREE.Vector3(0, 1, 0), yaw);
+            this._tmpQuat.setFromAxisAngle(ENEMY_MESH_OFFSET_UP, yaw);
             enemy.rigidBody.setRotation(
               {
                 x: this._tmpQuat.x,

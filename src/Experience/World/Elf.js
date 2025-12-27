@@ -54,14 +54,8 @@ export default class Elf {
     this.resources = this.experience.resources;
     this.time = this.experience.time;
 
-    this.setTextures();
-    this.setMaterial();
-    this.setBatchedMesh();
-    this.setGeometry();
-    this.setInstances();
-    this.setShadersConfig();
-
     // Reusable temp objects (avoid allocations in update loop)
+    // NOTE: must be created before `setInstances()` because it uses `_tmpColor`.
     this._tmpLookDir = new THREE.Vector3();
     this._tmpEuler = new THREE.Euler();
 
@@ -70,6 +64,13 @@ export default class Elf {
     this._tmpQuaternion = new THREE.Quaternion();
     this._tmpScale = new THREE.Vector3();
     this._tmpColor = new THREE.Color();
+
+    this.setTextures();
+    this.setMaterial();
+    this.setBatchedMesh();
+    this.setGeometry();
+    this.setInstances();
+    this.setShadersConfig();
   }
 
   setTextures() {
@@ -119,7 +120,7 @@ export default class Elf {
       // Cheering animation marker (type=1). No yaw needed.
       this.elfBatchedMesh.setColorAt(
         instanceID,
-        new THREE.Color(TYPE_CHEERING, 0, 0)
+        this._tmpColor.setRGB(TYPE_CHEERING, 0, 0)
       );
       this.cherringElvesInstances[index] = instanceID;
     }
@@ -147,7 +148,7 @@ export default class Elf {
         (Math.PI * 2);
       this.elfBatchedMesh.setColorAt(
         instanceID,
-        new THREE.Color(TYPE_SITTING, yaw01, 0)
+        this._tmpColor.setRGB(TYPE_SITTING, yaw01, 0)
       );
       this.sittingElvesInstances[index] = instanceID;
     }
@@ -255,7 +256,7 @@ export default class Elf {
           const yaw01 = yaw / (Math.PI * 2);
           this.elfBatchedMesh.setColorAt(
             instanceID,
-            new THREE.Color(TYPE_SITTING, yaw01, 0)
+            this._tmpColor.setRGB(TYPE_SITTING, yaw01, 0)
           );
         }
       }
