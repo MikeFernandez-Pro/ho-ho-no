@@ -13,6 +13,7 @@ import sources from "#experience/sources.js";
 import Physics from "#utils/physics.js";
 import Postprocessing from "#experience/postprocessing/postprocessing.js";
 import KillsCounter from "#experience/ui/KillsCounter.js";
+import GameTimer from "#experience/ui/GameTimer.js";
 // import PhysicsDebug from "#utils/physicsDebug.js";
 
 const backgroundMusic = new Howl({
@@ -53,6 +54,7 @@ export default class Experience {
     // this.physicsDebug = new PhysicsDebug();
     this.world = new World();
     this.killsCounter = new KillsCounter();
+    this.gameTimer = new GameTimer();
 
     // Resize event
     this.sizes.addEventListener("resize", this.resize);
@@ -73,6 +75,7 @@ export default class Experience {
     this.physics.update();
     // this.physicsDebug.update();
     this.postprocessing.update();
+    this.gameTimer.update();
   };
 
   destroy() {

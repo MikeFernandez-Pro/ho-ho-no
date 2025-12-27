@@ -19,6 +19,22 @@ body, * {
   outline: none;
 }
 
+.timer-text {
+  position: absolute;
+  top: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: "Just Another Hand", cursive;
+  font-weight: 400;
+  font-style: normal;  
+  font-size: clamp(2rem, 5vw, 5rem);
+  color: #fff;
+  line-height: 0.8;
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: 1.3rem 2.5rem 1rem 2.5rem;
+  border-radius: 2rem;
+}
+
 .counter-container {
   position: absolute;
   bottom: 0;
