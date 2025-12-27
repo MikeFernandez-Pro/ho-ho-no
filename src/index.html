@@ -3,17 +3,37 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Code structuring</title>
+    <title>Santa’s Bones</title>
     <link rel="stylesheet" href="./style.css" />
   </head>
   <body>
+
     <canvas class="webgl"></canvas>
 
     <p class="timer-text">0:00</p>
-        <div class="counter-container"> 
-          <img src="/ui/skullHead.png" alt="skullHead" class="skullHead" />
-          <p class="counter-text">x 0</p>
-        </div>
+
+    <div class="counter-container"> 
+      <img src="/ui/skullHead.png" alt="skullHead" class="skullHead" />
+    <p class="counter-text">x 0</p>
+    </div>
+
+    <div class="grid-centered-container">
+    <div class="game-over-container">
+      <h2 class="game-over-title">SANTA HAS RETURNED TO BONES...</h2>
+      <div class="time-survived-container">
+        <img src="/ui/sablier.png" alt="sablier" class="sablier" />
+      <p>Time survived: 0</p>
+      </div>
+      <div class="enemies-defeated-container">
+        <img src="/ui/skullHead.png" alt="skullHead" class="skullHead" />
+        <p>Enemies defeated: 0</p>
+      </div>
+
+      <button class="restart-button" onclick="window.location.reload()">Restart</button>
+    </div>
+    </div>
+
+
     <script type="module" src="./script.js"></script>
   </body>
 </html>
