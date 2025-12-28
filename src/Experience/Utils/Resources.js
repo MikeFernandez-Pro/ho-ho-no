@@ -14,6 +14,14 @@ export default class Resources extends THREE.EventDispatcher {
 
     this.setLoaders();
     this.startLoading();
+
+    // Emit initial progress so UI can start at 0%
+    this.dispatchEvent({
+      type: "progress",
+      loaded: this.loaded,
+      toLoad: this.toLoad,
+      progress: this.toLoad === 0 ? 1 : 0,
+    });
   }
 
   setLoaders() {
@@ -46,6 +54,14 @@ export default class Resources extends THREE.EventDispatcher {
     this.items[source.name] = file;
 
     this.loaded++;
+
+    // Emit progress on every loaded item
+    this.dispatchEvent({
+      type: "progress",
+      loaded: this.loaded,
+      toLoad: this.toLoad,
+      progress: this.toLoad === 0 ? 1 : this.loaded / this.toLoad,
+    });
 
     if (this.loaded === this.toLoad) {
       this.dispatchEvent({ type: "ready" });
