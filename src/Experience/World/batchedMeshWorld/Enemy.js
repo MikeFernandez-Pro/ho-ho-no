@@ -60,6 +60,7 @@ export default class Enemy extends THREE.EventDispatcher {
 
     this._nextSpawnTime = 0;
     this._spawnStartTime = 0;
+    this.started = false;
 
     this.setTextures();
     this.setMaterial();
@@ -67,12 +68,18 @@ export default class Enemy extends THREE.EventDispatcher {
     this.setGeometry();
     this.setShadersConfig();
 
-    // Start spawning once the loop begins
+    this.physics.addEventListener("collision", this.collisionEventHandler);
+  }
+
+  start() {
+    if (this.started) return;
+    this.started = true;
+
+    // Start spawning once the run begins
     this._spawnStartTime = this.time.elapsed;
     this._nextSpawnTime = this.time.elapsed + SPAWN_INTERVAL_START;
 
-    this.physics.addEventListener("collision", this.collisionEventHandler);
-
+    // Start ambient enemy sounds slightly after the run begins
     this.walkingInSnowSoundTimeout = setTimeout(() => {
       enemiesApproachSound.play();
       walkingInSnowSound.play();
@@ -365,6 +372,8 @@ export default class Enemy extends THREE.EventDispatcher {
     if (this.enemyBatchedMesh.material) {
       this.enemyBatchedMesh.material.uniforms.uTime.value = this.time.elapsed;
     }
+    if (!this.started) return;
+
     const dt = this.time.delta * 0.001;
     const character = this.experience.world?.character;
     const characterRb = character?.characterRigidBody;

@@ -50,7 +50,7 @@ export default class Experience {
     this.camera = new Camera();
     this.renderer = new Renderer();
     this.postprocessing = new Postprocessing();
-    this.perf = new Perf();
+    // this.perf = new Perf();
     this.physics = new Physics();
     // this.physicsDebug = new PhysicsDebug();
     this.world = new World();
@@ -59,12 +59,30 @@ export default class Experience {
     this.gameTimer = new GameTimer();
     this.gameOver = new GameOver();
 
+    // Game state: only start gameplay (timer, physics, enemies, etc.) once Start is clicked
+    this.gameStarted = false;
+    this.gameStartAt = null; // seconds in `Time.elapsed` when the game started
+
     // Resize event
     this.sizes.addEventListener("resize", this.resize);
 
     // Time tick event
     this.time.addEventListener("tick", this.update);
   }
+
+  startGame = () => {
+    if (this.gameStarted) return;
+    this.gameStarted = true;
+    this.gameStartAt = this.time.elapsed;
+
+    // Allow world subsystems to initialize their "start-of-run" timing (spawns, sounds, etc.)
+    this.world?.startGame?.();
+  };
+
+  getGameElapsedSeconds = () => {
+    if (!this.gameStarted || this.gameStartAt == null) return 0;
+    return Math.max(0, this.time.elapsed - this.gameStartAt);
+  };
 
   resize = () => {
     this.camera.resize();
@@ -74,8 +92,14 @@ export default class Experience {
 
   update = () => {
     this.camera.update();
-    this.world.update();
-    this.physics.update();
+
+    // Gameplay should be fully paused until the player clicks Start
+    if (this.gameStarted) {
+      this.world.update();
+      this.physics.update();
+      // this.physicsDebug.update();
+    }
+
     // this.physicsDebug.update();
     this.postprocessing.update();
     this.gameTimer.update();

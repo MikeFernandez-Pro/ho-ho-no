@@ -71,17 +71,17 @@ export default class Postprocessing {
   }
 
   update() {
-    const perf = this.experience.perf;
+    // const perf = this.experience.perf;
 
-    if (perf) {
-      perf.panel.begin();
-    }
+    // if (perf) {
+    //   perf.panel.begin();
+    // }
 
     //this.instance.render(this.scene, this.camera.instance);
     this.effectComposer.render();
 
-    if (perf) {
-      perf.panel.end();
-    }
+    // if (perf) {
+    //   perf.panel.end();
+    // }
   }
 }

@@ -33,6 +33,11 @@ export default class World {
     this.elf = new Elf();
   };
 
+  startGame() {
+    // Called by `Experience.startGame()` once the player clicks Start
+    if (this.enemy?.start) this.enemy.start();
+  }
+
   update() {
     if (this.character) {
       this.character.update();

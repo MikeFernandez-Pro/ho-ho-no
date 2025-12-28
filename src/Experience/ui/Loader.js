@@ -77,6 +77,9 @@ export default class Loader {
       () => {
         if (!this.overlayEl) return;
 
+        // Start gameplay timing/spawns immediately on click
+        this.experience.startGame?.();
+
         // Prevent any interaction during the transition
         this.overlayEl.style.pointerEvents = "none";
 
