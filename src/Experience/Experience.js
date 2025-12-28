@@ -11,7 +11,7 @@ import Resources from "#utils/Resources.js";
 import Perf from "#utils/Perf.js";
 import sources from "#experience/sources.js";
 import Physics from "#utils/physics.js";
-import Postprocessing from "#experience/postprocessing/postprocessing.js";
+import Postprocessing from "#experience/postprocessing/Postprocessing.js";
 import KillsCounter from "#experience/ui/KillsCounter.js";
 import GameTimer from "#experience/ui/GameTimer.js";
 import GameOver from "#experience/ui/GameOver.js";

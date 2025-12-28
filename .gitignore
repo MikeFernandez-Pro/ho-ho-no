@@ -62,3 +62,4 @@ Desktop.ini
 # Optional dotenv files
 .env
 .env.*.local
+.vercel
