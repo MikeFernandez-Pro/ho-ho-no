@@ -167,7 +167,7 @@ body {
   position: fixed;
   inset: 0;
   z-index: 9999;
-  background: #000000;
+  background: #282836;
 
   /* start fully hidden (radius 0) */
   --r: 0vmax;     

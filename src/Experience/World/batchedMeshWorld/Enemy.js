@@ -71,6 +71,36 @@ export default class Enemy extends THREE.EventDispatcher {
     this.physics.addEventListener("collision", this.collisionEventHandler);
   }
 
+  destroyAll() {
+    // Stop spawning / updating
+    this.started = false;
+
+    // Stop any delayed audio start + stop active loops
+    if (this.walkingInSnowSoundTimeout) {
+      clearTimeout(this.walkingInSnowSoundTimeout);
+      this.walkingInSnowSoundTimeout = null;
+    }
+    enemiesApproachSound.stop?.();
+    walkingInSnowSound.stop?.();
+
+    // Remove all remaining rigid bodies (Rapier removes attached colliders too)
+    for (const enemy of this.list) {
+      if (enemy?.rigidBody) {
+        this.physics.world.removeRigidBody(enemy.rigidBody);
+        enemy.rigidBody = null;
+      }
+    }
+    this.list.length = 0;
+
+    // Remove draw calls
+    if (this.enemyBatchedMesh) {
+      this.scene.remove(this.enemyBatchedMesh);
+    }
+
+    // Prevent further collision processing
+    this.physics.removeEventListener?.("collision", this.collisionEventHandler);
+  }
+
   start() {
     if (this.started) return;
     this.started = true;
@@ -385,20 +415,20 @@ export default class Enemy extends THREE.EventDispatcher {
     // Safety cap prevents too many spawns in a single long frame.
     let spawnedThisFrame = 0;
     const maxSpawnsPerFrame = 10;
-    // while (
-    //   spawnedThisFrame < maxSpawnsPerFrame &&
-    //   this.time.elapsed >= this._nextSpawnTime
-    // ) {
-    //   if (!this.enemiesApproachSoundActivated) {
-    //     enemiesApproachSound.play();
-    //     this.enemiesApproachSoundActivated = true;
-    //   }
-    //   const spawnPos = this._computeSpawnPosition(characterRb);
-    //   // clone so list stores a stable snapshot, not our temp vector
-    //   this.createEnnemie(spawnPos.clone());
-    //   spawnedThisFrame++;
-    //   this._nextSpawnTime += this._getSpawnInterval();
-    // }
+    while (
+      spawnedThisFrame < maxSpawnsPerFrame &&
+      this.time.elapsed >= this._nextSpawnTime
+    ) {
+      if (!this.enemiesApproachSoundActivated) {
+        enemiesApproachSound.play();
+        this.enemiesApproachSoundActivated = true;
+      }
+      const spawnPos = this._computeSpawnPosition(characterRb);
+      // clone so list stores a stable snapshot, not our temp vector
+      this.createEnnemie(spawnPos.clone());
+      spawnedThisFrame++;
+      this._nextSpawnTime += this._getSpawnInterval();
+    }
 
     for (let i = this.list.length - 1; i >= 0; i--) {
       const enemy = this.list[i];

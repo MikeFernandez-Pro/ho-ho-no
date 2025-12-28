@@ -73,7 +73,12 @@ export default class CharacterController extends THREE.EventDispatcher {
     );
   }
 
+  isGameplayActive() {
+    return !!this.experience.gameStarted && !this.character?.isGameOver;
+  }
+
   clickEventHandler = () => {
+    if (!this.isGameplayActive()) return;
     if (this.isShooting) {
       return;
     }
@@ -109,11 +114,13 @@ export default class CharacterController extends THREE.EventDispatcher {
   };
 
   mouseMoveEventHandler = (e) => {
+    if (!this.isGameplayActive()) return;
     this.mouse.x = (e.clientX / this.sizes.width) * 2 - 1;
     this.mouse.y = -(e.clientY / this.sizes.height) * 2 + 1;
   };
 
   keyEventHandler = (event) => {
+    if (!this.isGameplayActive()) return;
     if (keysConfigList[event.code]) {
       this.eventKeys[keysConfigList[event.code]] = event.type === "keydown";
     }
@@ -146,6 +153,7 @@ export default class CharacterController extends THREE.EventDispatcher {
   }
 
   update() {
+    if (!this.isGameplayActive()) return;
     const velocity = this.characterRigidBody.linvel();
 
     this.character.characterScene.position.x =

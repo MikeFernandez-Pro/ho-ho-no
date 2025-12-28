@@ -70,7 +70,7 @@ export default class Loader {
     const startButton = document.createElement("button");
     startButton.type = "button";
     startButton.className = "loading-button loading-button--start is-visible";
-    startButton.textContent = "Start";
+    startButton.textContent = "Play";
 
     startButton.addEventListener(
       "click",

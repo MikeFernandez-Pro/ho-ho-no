@@ -65,12 +65,27 @@ export default class Elf {
     this._tmpScale = new THREE.Vector3();
     this._tmpColor = new THREE.Color();
 
+    this.destroyed = false;
+
     this.setTextures();
     this.setMaterial();
     this.setBatchedMesh();
     this.setGeometry();
     this.setInstances();
     this.setShadersConfig();
+  }
+
+  destroyAll() {
+    // Remove draw calls
+    if (this.elfBatchedMesh) {
+      this.scene.remove(this.elfBatchedMesh);
+    }
+
+    // Drop references so update() becomes a no-op if called
+    this.destroyed = true;
+    this.cherringElvesInstances = [];
+    this.sittingElvesInstances = [];
+    this.elfBatchedMesh = null;
   }
 
   setTextures() {
@@ -201,6 +216,10 @@ export default class Elf {
   }
 
   update() {
+    if (this.destroyed || !this.elfBatchedMesh || !this.elfBatchedMesh.material) {
+      return;
+    }
+
     if (this.elfBatchedMesh.material) {
       this.elfBatchedMesh.material.uniforms.uTime.value = this.time.elapsed;
 

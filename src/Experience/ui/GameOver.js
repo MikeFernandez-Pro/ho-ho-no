@@ -52,6 +52,12 @@ export default class GameOver {
         duration: 0.5,
         ease: "power2.in",
         "--r": "150vmax",
+        onComplete: () => {
+          // Once the mask fully covers the screen, we can safely clean up scene actors.
+          // This prevents them from running/animating "behind" the game-over UI.
+          this.experience.world?.enemy?.destroyAll?.();
+          this.experience.world?.elf?.destroyAll?.();
+        },
       });
     });
   };

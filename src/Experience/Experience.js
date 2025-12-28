@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { Howl } from "howler";
+import { Howl, Howler } from "howler";
 
 import Debug from "#utils/Debug.js";
 import Sizes from "#utils/Sizes.js";
@@ -22,7 +22,7 @@ const backgroundMusic = new Howl({
   src: ["/audio/music/christmas.mp3"],
   volume: 0.1,
   loop: true,
-  autoplay: true,
+  autoplay: false,
 });
 
 let instance = null;
@@ -50,7 +50,7 @@ export default class Experience {
     this.camera = new Camera();
     this.renderer = new Renderer();
     this.postprocessing = new Postprocessing();
-    // this.perf = new Perf();
+    // this.perf = new Perf ();
     this.physics = new Physics();
     // this.physicsDebug = new PhysicsDebug();
     this.world = new World();
@@ -74,6 +74,17 @@ export default class Experience {
     if (this.gameStarted) return;
     this.gameStarted = true;
     this.gameStartAt = this.time.elapsed;
+
+    // Start audio only after a user gesture (Start click) to avoid autoplay blocking.
+    // Keeps any other delays (e.g. enemy approach) relative to this moment.
+    try {
+      Howler.ctx?.resume?.();
+    } catch (e) {
+      // no-op: some environments don't expose the audio context
+    }
+    if (!backgroundMusic.playing()) {
+      backgroundMusic.play();
+    }
 
     // Allow world subsystems to initialize their "start-of-run" timing (spawns, sounds, etc.)
     this.world?.startGame?.();
