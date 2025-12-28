@@ -39,15 +39,15 @@ export default class Environment {
 
     // Avoid near=0 (can cause precision issues / weird artifacts)
     this.sunLight.shadow.camera.near = 40;
-    this.sunLight.shadow.camera.far = 80;
+    this.sunLight.shadow.camera.far = 90;
     this.sunLight.shadow.camera.left = -20;
     this.sunLight.shadow.camera.right = 30;
-    this.sunLight.shadow.camera.top = 22;
+    this.sunLight.shadow.camera.top = 25;
     this.sunLight.shadow.camera.bottom = -10;
     // Default was extremely high; keep it small and tune if you see acne/peter-panning.
     this.sunLight.shadow.normalBias = 0.02;
     // Softer edges for PCF-based shadow maps
-    this.sunLight.shadow.radius = 2;
+    this.sunLight.shadow.radius = 3;
     this.sunLight.position.set(15, 30, 20);
     this.scene.add(this.sunLight);
     // Important: the target must be in the scene graph so it can be positioned/updated

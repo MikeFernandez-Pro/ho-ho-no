@@ -22,6 +22,8 @@ const keysConfigList = {
 const SPEED = 7.5;
 // Keep this in sync with ProjectilesFactory's SHOOT_OFFSET_LOCAL.y (muzzle height)
 const AIM_HEIGHT_OFFSET = 0.596;
+// Hold-to-shoot cadence (seconds). Real rate is also limited by the shoot animation.
+const SHOOT_REPEAT_DELAY = 0.39;
 
 export default class CharacterController extends THREE.EventDispatcher {
   constructor(character) {
@@ -52,6 +54,8 @@ export default class CharacterController extends THREE.EventDispatcher {
 
     // Animation logic
     this.isShooting = false;
+    this.isMouseDown = false;
+    this.lastShootAt = -Infinity;
 
     // Start the smoothed rotation from the current matrix rotation
 
@@ -63,7 +67,9 @@ export default class CharacterController extends THREE.EventDispatcher {
       enter: false,
     };
 
-    window.addEventListener("click", this.clickEventHandler);
+    window.addEventListener("mousedown", this.mouseDownEventHandler);
+    window.addEventListener("mouseup", this.mouseUpEventHandler);
+    window.addEventListener("blur", this.windowBlurEventHandler);
     window.addEventListener("keydown", this.keyEventHandler);
     window.addEventListener("keyup", this.keyEventHandler);
     window.addEventListener("mousemove", this.mouseMoveEventHandler);
@@ -77,11 +83,22 @@ export default class CharacterController extends THREE.EventDispatcher {
     return !!this.experience.gameStarted && !this.character?.isGameOver;
   }
 
-  clickEventHandler = () => {
+  updateMouseFromEvent(e) {
+    if (!e) return;
+    // Keep aiming stable even if the user shoots without moving the mouse first.
+    this.mouse.x = (e.clientX / this.sizes.width) * 2 - 1;
+    this.mouse.y = -(e.clientY / this.sizes.height) * 2 + 1;
+  }
+
+  tryShoot = () => {
     if (!this.isGameplayActive()) return;
     if (this.isShooting) {
       return;
     }
+
+    const now = this.time.elapsed;
+    if (now - this.lastShootAt < SHOOT_REPEAT_DELAY) return;
+    this.lastShootAt = now;
 
     shootSound.play();
 
@@ -109,14 +126,32 @@ export default class CharacterController extends THREE.EventDispatcher {
     });
   };
 
+  mouseDownEventHandler = (e) => {
+    // Left mouse button only
+    if (e?.button !== 0) return;
+    if (!this.isGameplayActive()) return;
+
+    this.isMouseDown = true;
+    this.updateMouseFromEvent(e);
+    this.tryShoot();
+  };
+
+  mouseUpEventHandler = (e) => {
+    if (e?.button !== 0) return;
+    this.isMouseDown = false;
+  };
+
+  windowBlurEventHandler = () => {
+    this.isMouseDown = false;
+  };
+
   animationFinishedEventHandler = (event) => {
     this.isShooting = false;
   };
 
   mouseMoveEventHandler = (e) => {
     if (!this.isGameplayActive()) return;
-    this.mouse.x = (e.clientX / this.sizes.width) * 2 - 1;
-    this.mouse.y = -(e.clientY / this.sizes.height) * 2 + 1;
+    this.updateMouseFromEvent(e);
   };
 
   keyEventHandler = (event) => {
@@ -163,6 +198,11 @@ export default class CharacterController extends THREE.EventDispatcher {
 
     this.setCharacterOrientation();
 
+    // Hold-to-shoot
+    if (this.isMouseDown) {
+      this.tryShoot();
+    }
+
     // Retrieve keys input
     const { forward, backward, left, right } = this.eventKeys;
     const hasMovementInput = forward || backward || left || right;
@@ -198,7 +238,9 @@ export default class CharacterController extends THREE.EventDispatcher {
     window.removeEventListener("keydown", this.keyEventHandler);
     window.removeEventListener("keyup", this.keyEventHandler);
     window.removeEventListener("mousemove", this.mouseMoveEventHandler);
-    window.removeEventListener("click", this.clickEventHandler);
+    window.removeEventListener("mousedown", this.mouseDownEventHandler);
+    window.removeEventListener("mouseup", this.mouseUpEventHandler);
+    window.removeEventListener("blur", this.windowBlurEventHandler);
     this.characterAnimationController.removeEventListener(
       "shootFinished",
       this.animationFinishedEventHandler
