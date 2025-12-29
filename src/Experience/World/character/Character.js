@@ -105,7 +105,10 @@ export default class Character {
     this.characterCollider.setCollisionGroups(
       makeCollisionGroups(
         CollisionGroup.CHARACTER,
-        CollisionGroup.ARENA | CollisionGroup.GROUND | CollisionGroup.ENEMY
+        CollisionGroup.ARENA |
+          CollisionGroup.GROUND |
+          CollisionGroup.ENEMY |
+          CollisionGroup.GIFT
       )
     );
 

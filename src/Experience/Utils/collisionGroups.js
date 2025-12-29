@@ -8,6 +8,7 @@ export const CollisionGroup = Object.freeze({
   ENEMY: 1 << 2,
   CHARACTER: 1 << 3,
   PROJECTILE: 1 << 4,
+  GIFT: 1 << 5,
 });
 
 export function makeCollisionGroups(memberships, filter) {

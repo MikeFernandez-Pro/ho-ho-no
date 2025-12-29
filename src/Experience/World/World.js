@@ -8,6 +8,8 @@ import Floor from "#world/Floor.js";
 import ProjectileParticles from "#world/projectiles/ProjectileParticles.js";
 import Elf from "#world/Elf.js";
 import Enemy from "#world/batchedMeshWorld/Enemy.js";
+import GiftParticles from "#world/gifts/GiftParticles.js";
+import Gift from "#world/gifts/Gift.js";
 export default class World {
   constructor() {
     this.experience = new Experience();
@@ -27,7 +29,9 @@ export default class World {
     this.camp = new Camp();
     this.floor = new Floor();
 
+    this.gift = new Gift();
     this.projectileParticles = new ProjectileParticles();
+    this.giftParticles = new GiftParticles();
     this.character = new Character();
     this.snow = new Snow();
     this.elf = new Elf();
@@ -55,6 +59,9 @@ export default class World {
     }
     if (this.enemy) {
       this.enemy.update();
+    }
+    if (this.gift) {
+      this.gift.update();
     }
   }
 

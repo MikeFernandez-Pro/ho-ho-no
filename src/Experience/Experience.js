@@ -16,7 +16,7 @@ import KillsCounter from "#experience/ui/KillsCounter.js";
 import GameTimer from "#experience/ui/GameTimer.js";
 import GameOver from "#experience/ui/GameOver.js";
 import Loader from "#experience/ui/Loader.js";
-// import PhysicsDebug from "#utils/physicsDebug.js";
+import PhysicsDebug from "#utils/physicsDebug.js";
 
 const backgroundMusic = new Howl({
   src: ["/audio/music/christmas.mp3"],
@@ -52,7 +52,7 @@ export default class Experience {
     this.postprocessing = new Postprocessing();
     // this.perf = new Perf ();
     this.physics = new Physics();
-    // this.physicsDebug = new PhysicsDebug();
+    this.physicsDebug = new PhysicsDebug();
     this.world = new World();
     this.killsCounter = new KillsCounter();
     this.loader = new Loader();
@@ -75,8 +75,8 @@ export default class Experience {
     this.gameStarted = true;
     this.gameStartAt = this.time.elapsed;
 
-    // Start audio only after a user gesture (Start click) to avoid autoplay blocking.
-    // Keeps any other delays (e.g. enemy approach) relative to this moment.
+    // Start audio only after a use gesture (Start click) to avoid autoplay blocking.
+    // Keeps any other delays (e.g.r enemy approach) relative to this moment.
     try {
       Howler.ctx?.resume?.();
     } catch (e) {
@@ -108,7 +108,7 @@ export default class Experience {
     if (this.gameStarted) {
       this.world.update();
       this.physics.update();
-      // this.physicsDebug.update();
+      this.physicsDebug.update();
     }
 
     // this.physicsDebug.update();

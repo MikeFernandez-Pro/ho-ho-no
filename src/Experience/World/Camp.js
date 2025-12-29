@@ -52,7 +52,8 @@ export default class Camp {
         CollisionGroup.GROUND,
         CollisionGroup.ENEMY |
           CollisionGroup.CHARACTER |
-          CollisionGroup.PROJECTILE
+          CollisionGroup.PROJECTILE |
+          CollisionGroup.GIFT
       )
     );
     this.groundCollider.userData = { type: "ground" };
@@ -78,7 +79,9 @@ export default class Camp {
     this.arenaCollider.setCollisionGroups(
       makeCollisionGroups(
         CollisionGroup.ARENA,
-        CollisionGroup.CHARACTER | CollisionGroup.PROJECTILE
+        CollisionGroup.CHARACTER |
+          CollisionGroup.PROJECTILE |
+          CollisionGroup.GIFT
       )
     );
     this.arenaCollider.userData = {

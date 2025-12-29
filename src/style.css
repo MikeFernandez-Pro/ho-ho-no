@@ -74,6 +74,22 @@ body {
   }
 }
 
+.boost-container {
+  position: absolute;
+  top: 9rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;  
+
+  img {
+    width: clamp(4rem, 8vw, 8rem);
+    height: auto;
+  }
+}
+
 .grid-centered-container {
   position: fixed;
   top: 0;

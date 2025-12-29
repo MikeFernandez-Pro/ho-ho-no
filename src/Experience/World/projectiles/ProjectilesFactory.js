@@ -103,7 +103,7 @@ export default class ProjectilesFactory {
   createProjectileRigidBody(position, angle, projectileInstanceID) {
     // Rigid body configuration
     const projectileRigidBodyDesc = RAPIER.RigidBodyDesc.dynamic();
-    projectileRigidBodyDesc.setTranslation(position.x, position.y, position.z);
+
     projectileRigidBodyDesc.setRotation({
       x: 0,
       y: Math.sin(angle * 0.5),
