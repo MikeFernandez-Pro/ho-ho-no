@@ -17,9 +17,12 @@ export default class Gift {
     this.physics = this.experience.physics;
     this.time = this.experience.time;
 
-    this.giftModel = this.resources.items.giftModel;
+    this.giftsModel = this.resources.items.giftsModel;
 
-    this.setMaterial();
+    this._tmpTranslation = new THREE.Vector3();
+    this._tmpQuaternion = new THREE.Quaternion();
+
+    this.setGiftsMaterial();
 
     this.isCollected = false;
     this.physics.addEventListener("collision", this.collisionEventHandler);
@@ -66,13 +69,22 @@ export default class Gift {
     }
   }
 
-  setMaterial() {
+  setGiftsMaterial() {
     const gradientTexture = this.resources.items.gradientTexture;
     const fiveToneTexture = this.resources.items.fiveToneTexture;
 
     this.giftMeshMaterial = new THREE.MeshToonMaterial({
       map: gradientTexture,
       gradientMap: fiveToneTexture,
+    });
+
+    this.giftsModel.scene.traverse((child) => {
+      if (child instanceof THREE.Mesh) {
+        child.material = new THREE.MeshToonMaterial({
+          map: child.material.map,
+          gradientMap: fiveToneTexture,
+        });
+      }
     });
   }
 
@@ -83,8 +95,8 @@ export default class Gift {
     this.scene.add(this.giftRoot);
 
     // Clone so we can safely remove/recreate gifts without mutating the original loaded scene.
-    this.giftMesh = this.giftModel.scene.getObjectByName("gift").clone(true);
-    this.giftMesh.material = this.giftMeshMaterial;
+    const randomChild = Math.floor(Math.random() * 3);
+    this.giftMesh = this.giftsModel.scene.children[randomChild].clone(true);
 
     this.giftMesh.scale.set(2, 2, 2);
 
@@ -200,13 +212,10 @@ export default class Gift {
       elapsed >= this.despawnAtSec
     ) {
       // Missed gift: play particles (black) at last known position
-      const t = this.giftRigidBody.translation();
+      this._tmpTranslation.copy(this.giftRigidBody.translation());
       const giftParticles = this.experience.world?.giftParticles;
       if (giftParticles?.createGiftParticles) {
-        giftParticles.createGiftParticles(
-          new THREE.Vector3(t.x, t.y, t.z),
-          true
-        );
+        giftParticles.createGiftParticles(this._tmpTranslation, true);
       }
 
       this.destroyGift();
@@ -221,17 +230,21 @@ export default class Gift {
     }
 
     if (!this.giftRigidBody || !this.giftRoot) return;
+
+    this._tmpTranslation.copy(this.giftRigidBody.translation());
+    this._tmpQuaternion.copy(this.giftRigidBody.rotation());
+
     this.giftRoot.position.set(
-      this.giftRigidBody.translation().x,
-      this.giftRigidBody.translation().y,
-      this.giftRigidBody.translation().z
+      this._tmpTranslation.x,
+      this._tmpTranslation.y,
+      this._tmpTranslation.z
     );
 
     this.giftRoot.quaternion.set(
-      this.giftRigidBody.rotation().x,
-      this.giftRigidBody.rotation().y,
-      this.giftRigidBody.rotation().z,
-      this.giftRigidBody.rotation().w
+      this._tmpQuaternion.x,
+      this._tmpQuaternion.y,
+      this._tmpQuaternion.z,
+      this._tmpQuaternion.w
     );
   }
 

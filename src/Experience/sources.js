@@ -66,8 +66,8 @@ export default [
     path: "models/elf.glb",
   },
   {
-    name: "giftModel",
+    name: "giftsModel",
     type: "gltfModel",
-    path: "models/gift.glb",
+    path: "models/gifts.glb",
   },
 ];
