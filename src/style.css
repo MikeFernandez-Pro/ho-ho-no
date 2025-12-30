@@ -157,7 +157,7 @@ body {
 /* Active boost (top HUD) + "camembert" countdown overlay */
 .boost-active {
   display: flex;
-  flex-direction: column;
+  flex-direction: column; 
   align-items: center;
   gap: 0.6rem;
 }
@@ -352,6 +352,11 @@ body {
     font-size: clamp(2rem, 5vw, 5rem);
     transition: all 0.2s ease;
 
+    /* Prevent accidental text selection on the Play/Start button */
+    user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+
 
     &:hover {
       background-color: #ffffff;
@@ -478,6 +483,11 @@ body {
   align-items: center;
   justify-content: space-between;
   width: 60%;
+
+  /* Prevent accidental text selection on Move/Shoot labels */
+  user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
 }
 
 .control-keyboard {

@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import * as RAPIER from "@dimforge/rapier3d";
+import { Howl } from "howler";
 
 import Experience from "#experience/Experience.js";
 import { CollisionGroup, makeCollisionGroups } from "#utils/collisionGroups.js";
@@ -8,6 +9,24 @@ import { CollisionGroup, makeCollisionGroups } from "#utils/collisionGroups.js";
 const GIFT_SPAWN_TILT = THREE.MathUtils.degToRad(Math.random() * 360);
 const GIFT_SPAWN_RADIUS = 10; // radius around center (XZ plane)
 const GIFT_SPAWN_HEIGHT = 15; // starting Y so it falls into view
+
+const giftSpawnSound = new Howl({
+  src: ["/audio/soundEffects/giftSpawn.mp3"],
+  volume: 0.5,
+  autoplay: false,
+});
+
+const giftExplosionSound = new Howl({
+  src: ["/audio/soundEffects/giftExplosion.mp3"],
+  volume: 0.7,
+  autoplay: false,
+});
+
+const grabGiftSound = new Howl({
+  src: ["/audio/soundEffects/grabGift.mp3"],
+  volume: 0.2,
+  autoplay: false,
+});
 
 export default class Gift {
   constructor() {
@@ -52,11 +71,12 @@ export default class Gift {
 
   createGift() {
     // If we ever call this again, make sure the previous one is fully removed first.
-    this.destroyGift();
+    this.destroyGift({ playExplosionSound: false });
 
     this.isCollected = false;
     this.setMesh();
     this.setPhysics();
+    giftSpawnSound.play();
 
     // Reset blink state for the new gift
     if (this.giftRoot) this.giftRoot.visible = true;
@@ -64,6 +84,7 @@ export default class Gift {
 
   destroyGift() {
     if (this.giftRigidBody) {
+      giftExplosionSound.play();
       this.physics.world.removeRigidBody(this.giftRigidBody);
       this.giftRigidBody = null;
       this.giftCollider = null;
@@ -201,6 +222,7 @@ export default class Gift {
     if (!hitsThisGift) return;
 
     this.isCollected = true;
+    grabGiftSound.play();
 
     const p = this.giftCollider.translation();
     const giftParticles = this.experience.world?.giftParticles;
@@ -215,6 +237,7 @@ export default class Gift {
       this.experience.boostIndicator?.showActiveBoost?.(this.selectedBoostKey);
     }
 
+    // Picked up by player: no "explosion" sound.
     this.destroyGift();
   };
 
@@ -258,7 +281,8 @@ export default class Gift {
         giftParticles.createGiftParticles(this._tmpTranslation, true);
       }
 
-      this.destroyGift();
+      // Gift expires on its own: play explosion sound.
+      this.destroyGift({ playExplosionSound: true });
       this.despawnAtSec = null;
     }
 
@@ -290,6 +314,7 @@ export default class Gift {
 
   destroy() {
     this.physics.removeEventListener("collision", this.collisionEventHandler);
-    this.destroyGift();
+    // Cleanup: don't force an explosion sound.
+    this.destroyGift({ playExplosionSound: false });
   }
 }

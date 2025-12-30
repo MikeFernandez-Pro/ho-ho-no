@@ -46,10 +46,8 @@ function describeSector(cx, cy, r, startAngleDeg, endAngleDeg) {
   return `M ${cx} ${cy} L ${start.x} ${start.y} A ${r} ${r} 0 ${largeArc} 1 ${end.x} ${end.y} Z`;
 }
 
-export default class BoostIndicator extends THREE.EventDispatcher {
+export default class BoostIndicator {
   constructor() {
-    super();
-
     this.experience = new Experience();
 
     this.container = document.querySelector(".boost-container");
@@ -94,7 +92,6 @@ export default class BoostIndicator extends THREE.EventDispatcher {
 
     // Activate gameplay boost immediately.
     this.experience.activeBoost = key;
-    this.dispatchEvent({ type: "boost-activated" });
 
     this.track.innerHTML = `
       <div class="boost-active" data-boost="${boost.key}">
@@ -158,7 +155,6 @@ export default class BoostIndicator extends THREE.EventDispatcher {
           // Clear active boost when it expires (only if it hasn't been replaced).
           if (this.experience.activeBoost === key) {
             this.experience.activeBoost = null;
-            this.dispatchEvent({ type: "boost-expired" });
           }
           this.hide();
         };

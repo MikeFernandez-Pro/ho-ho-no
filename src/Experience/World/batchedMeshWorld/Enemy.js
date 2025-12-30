@@ -32,9 +32,9 @@ const DEATH_BLEND_DURATION = 0.1; // seconds (stored in scale.z, used in shader)
 const CHASE_SPEED = 3.5;
 
 // Spawning
-const SPAWN_INTERVAL_START = 1; // seconds at t=0
+const SPAWN_INTERVAL_START = 0.9; // seconds at t=0
 const SPAWN_INTERVAL_END = 0.35; // seconds at t=SPAWN_INTERVAL_RAMP_DURATION
-const SPAWN_INTERVAL_RAMP_DURATION = 60.0; // seconds (2 minutes)
+const SPAWN_INTERVAL_RAMP_DURATION = 90.0; // seconds (3 minutes)
 const SPAWN_RADIUS = 17; // exact distance from center (0,0,0)
 
 export default class Enemy extends THREE.EventDispatcher {
