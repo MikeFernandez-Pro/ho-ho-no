@@ -33,6 +33,10 @@ export default class Gift {
     // - despawn after 7s if not collected
     this.nextSpawnAtSec = 15;
     this.despawnAtSec = null;
+
+    // Blink warning before despawn (helps player notice the gift will disappear soon)
+    this.blinkStartOffsetSec = 5; // start blinking 5s after spawn
+    this.blinkIntervalSec = 0.18;
   }
 
   getRandomSpawnPosition() {
@@ -53,6 +57,9 @@ export default class Gift {
     this.isCollected = false;
     this.setMesh();
     this.setPhysics();
+
+    // Reset blink state for the new gift
+    if (this.giftRoot) this.giftRoot.visible = true;
   }
 
   destroyGift() {
@@ -63,6 +70,8 @@ export default class Gift {
     }
 
     if (this.giftRoot) {
+      // Ensure we don't keep the next gift hidden if we were blinking
+      this.giftRoot.visible = true;
       this.scene.remove(this.giftRoot);
       this.giftRoot = null;
       this.giftMesh = null;
@@ -214,6 +223,26 @@ export default class Gift {
     if (!this.experience.gameStarted) return;
 
     const elapsed = this.experience.getGameElapsedSeconds();
+
+    // Blink warning: start after 5s (2s before despawn, given despawn=7s).
+    // Uses despawnAtSec so it stays correct if the despawn duration changes.
+    if (
+      !this.isCollected &&
+      this.giftRigidBody &&
+      this.giftRoot &&
+      this.despawnAtSec != null
+    ) {
+      const blinkStartAtSec =
+        this.despawnAtSec - (7 - this.blinkStartOffsetSec);
+      if (elapsed >= blinkStartAtSec && elapsed < this.despawnAtSec) {
+        const t = elapsed - blinkStartAtSec;
+        const phase = Math.floor(t / this.blinkIntervalSec);
+        this.giftRoot.visible = phase % 2 === 0;
+      } else {
+        // Not in the blink window: keep visible.
+        this.giftRoot.visible = true;
+      }
+    }
 
     // Despawn after 7s if not collected
     if (
