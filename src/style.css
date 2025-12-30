@@ -76,18 +76,18 @@ body {
 
 .boost-container {
   position: absolute;
-  top: 9rem;
-  left: 50%;
-  transform: translateX(-50%);
+  bottom: 0;
+  left: 0;
+  margin: clamp(1rem, 3vw, 3rem) clamp(1rem, 3.5vw, 3.5rem);
   --boost-gap: 1rem;
-  width: clamp(14rem, 45vw, 32rem);
-  overflow: hidden; 
+  width: auto;
+  overflow: visible;
   display: block;
 
   /* hidden by default (roulette appears only on gift pickup) */
   opacity: 0;
   visibility: hidden;
-  transform: translateX(-50%) translateZ(0);
+  transform: translateZ(0);
   transition: opacity 150ms ease, visibility 150ms ease;
   pointer-events: none;
 
@@ -141,8 +141,8 @@ body {
 }
 
 .boost-container.is-active .boost-track {
-  width: 100%;
-  justify-content: center;
+  width: auto;
+  justify-content: flex-start;
 }
 
 .boost-item {
@@ -156,9 +156,10 @@ body {
 
 /* Active boost (top HUD) + "camembert" countdown overlay */
 .boost-active {
-  position: relative;
-  width: clamp(4rem, 8vw, 8rem);
-  height: clamp(4rem, 8vw, 8rem);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
 }
 
 .boost-container.is-active img {
@@ -166,6 +167,12 @@ body {
   height: 100%;
   object-fit: contain;
   display: block;
+}
+
+.boost-active__icon {
+  position: relative;
+  width: clamp(3.5rem, 7vw, 7rem);
+  height: auto;
 }
 
 .boost-active__pie {
@@ -178,6 +185,21 @@ body {
 
 .boost-active__pie-path {
   fill: rgba(0, 0, 0, 0.5);
+}
+
+.boost-active__label {
+  margin: 0;
+  display: block;
+  width: 100%;
+  text-align: center;
+  font-family: "Just Another Hand", cursive;
+  font-weight: 400;
+  font-style: normal;
+  font-size: clamp(1.2rem, 2.5vw, 2.5rem);
+  text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  color: #fff;
+  line-height: 1;
+  user-select: none;
 }
 
 .grid-centered-container {

@@ -98,6 +98,14 @@ export default class Gift {
     const randomChild = Math.floor(Math.random() * 3);
     this.giftMesh = this.giftsModel.scene.children[randomChild].clone(true);
 
+    // Map the picked gift mesh variant to the boost key.
+    // children:
+    // 0 => piercing shot (gameplay key: "ghost")
+    // 1 => speed (gameplay key: "speed")
+    // 2 => shoot cadence (gameplay key: "shoot")
+    this.selectedBoostKey =
+      randomChild === 0 ? "ghost" : randomChild === 1 ? "speed" : "shoot";
+
     this.giftMesh.scale.set(2, 2, 2);
 
     // Re-center mesh around its bounding-box center.
@@ -192,8 +200,11 @@ export default class Gift {
     }
 
     this.despawnAtSec = null;
-    // Trigger boost roulette when the gift is collected
-    this.experience.boostRoulette?.spin?.();
+
+    // Show the corresponding icon in the middle with the same countdown timer as before.
+    if (this.selectedBoostKey) {
+      this.experience.boostIndicator?.showActiveBoost?.(this.selectedBoostKey);
+    }
 
     this.destroyGift();
   };
