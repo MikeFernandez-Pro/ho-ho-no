@@ -27,9 +27,18 @@ export default class CharacterAnimationController extends THREE.EventDispatcher 
 
     // CharacterController may be created after this controller; bind when available.
     // this.bindCharacterController(character.characterController);
+
+    this.baseShootTimeScale = 1.5;
+    this.shootBoostMultiplier = 2;
   }
 
   shootEventHandler = () => {
+    // Shoot boost should also speed up the shoot animation, otherwise it throttles cadence.
+    if (this.actions?.shoot) {
+      const multiplier =
+        this.experience.activeBoost === "shoot" ? this.shootBoostMultiplier : 1;
+      this.actions.shoot.timeScale = this.baseShootTimeScale * multiplier;
+    }
     this.isShooting = true;
     this.play("shoot");
   };

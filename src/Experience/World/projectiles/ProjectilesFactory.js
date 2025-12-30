@@ -85,7 +85,11 @@ export default class ProjectilesFactory {
     hitEnemySound.play();
     Math.random() < 0.1 && enemyScreamSound.play();
 
-    this.destroyProjectileByInstance(event.projectile);
+    // Ghost boost => piercing shots: do NOT destroy projectile on enemy hit.
+    // Projectiles still get destroyed on arena collisions (handled by collisionEventHandler).
+    if (this.experience.activeBoost !== "ghost") {
+      this.destroyProjectileByInstance(event.projectile);
+    }
   };
 
   setGeometry() {
@@ -103,6 +107,8 @@ export default class ProjectilesFactory {
   createProjectileRigidBody(position, angle, projectileInstanceID) {
     // Rigid body configuration
     const projectileRigidBodyDesc = RAPIER.RigidBodyDesc.dynamic();
+    // Spawn at the computed muzzle position (otherwise Rapier defaults near origin)
+    projectileRigidBodyDesc.setTranslation(position.x, position.y, position.z);
 
     projectileRigidBodyDesc.setRotation({
       x: 0,
@@ -188,6 +194,21 @@ export default class ProjectilesFactory {
       projectileInstanceID
     );
 
+    // Set initial render transform immediately (so it doesn't pop at origin for 1 frame)
+    const initialQuat = new THREE.Quaternion().setFromAxisAngle(
+      new THREE.Vector3(0, 1, 0),
+      projectileYaw
+    );
+    this.tmpMatrix.compose(
+      spawnPosition,
+      initialQuat,
+      new THREE.Vector3(1, 1, 1)
+    );
+    this.batchedMeshWorld.batchedMesh.setMatrixAt(
+      projectileInstanceID,
+      this.tmpMatrix
+    );
+
     this.list.push({
       instance: projectileInstanceID,
       rigidBody,
@@ -245,8 +266,9 @@ export default class ProjectilesFactory {
 
     const projectileParticles = this.experience.world.projectileParticles;
     if (projectileParticles) {
+      const t = projectile.rigidBody.translation();
       projectileParticles.createProjectileParticles(
-        projectile.rigidBody.translation()
+        new THREE.Vector3(t.x, t.y, t.z)
       );
     }
 

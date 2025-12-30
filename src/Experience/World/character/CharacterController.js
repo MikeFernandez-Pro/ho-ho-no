@@ -19,11 +19,11 @@ const keysConfigList = {
   KeyD: "right",
 };
 
-const SPEED = 7.5;
+const BASE_SPEED = 7.5;
 // Keep this in sync with ProjectilesFactory's SHOOT_OFFSET_LOCAL.y (muzzle height)
 const AIM_HEIGHT_OFFSET = 0.596;
 // Hold-to-shoot cadence (seconds). Real rate is also limited by the shoot animation.
-const SHOOT_REPEAT_DELAY = 0.39;
+const BASE_SHOOT_REPEAT_DELAY = 0.39;
 
 export default class CharacterController extends THREE.EventDispatcher {
   constructor(character) {
@@ -83,6 +83,19 @@ export default class CharacterController extends THREE.EventDispatcher {
     return !!this.experience.gameStarted && !this.character?.isGameOver;
   }
 
+  getMoveSpeed() {
+    // Speed boost: faster movement while active
+    if (this.experience.activeBoost === "speed") return BASE_SPEED * 1.5;
+    return BASE_SPEED;
+  }
+
+  getShootRepeatDelay() {
+    // Shoot boost: faster cadence while active (smaller delay)
+    if (this.experience.activeBoost === "shoot")
+      return BASE_SHOOT_REPEAT_DELAY * 0.5;
+    return BASE_SHOOT_REPEAT_DELAY;
+  }
+
   updateMouseFromEvent(e) {
     if (!e) return;
     // Keep aiming stable even if the user shoots without moving the mouse first.
@@ -97,7 +110,7 @@ export default class CharacterController extends THREE.EventDispatcher {
     }
 
     const now = this.time.elapsed;
-    if (now - this.lastShootAt < SHOOT_REPEAT_DELAY) return;
+    if (now - this.lastShootAt < this.getShootRepeatDelay()) return;
     this.lastShootAt = now;
 
     shootSound.play();
@@ -225,7 +238,7 @@ export default class CharacterController extends THREE.EventDispatcher {
     this.direction.copy(this.frontVector).add(this.sideVector);
 
     if (this.direction.lengthSq() > 0) {
-      this.direction.normalize().multiplyScalar(SPEED);
+      this.direction.normalize().multiplyScalar(this.getMoveSpeed());
 
       this.linvel.x = this.direction.x;
       this.linvel.y = velocity.y;

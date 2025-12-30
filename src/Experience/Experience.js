@@ -16,6 +16,7 @@ import KillsCounter from "#experience/ui/KillsCounter.js";
 import GameTimer from "#experience/ui/GameTimer.js";
 import GameOver from "#experience/ui/GameOver.js";
 import Loader from "#experience/ui/Loader.js";
+import BoostRoulette from "#experience/ui/BoostRoulette.js";
 import PhysicsDebug from "#utils/physicsDebug.js";
 
 const backgroundMusic = new Howl({
@@ -52,12 +53,16 @@ export default class Experience {
     this.postprocessing = new Postprocessing();
     // this.perf = new Perf ();
     this.physics = new Physics();
-    this.physicsDebug = new PhysicsDebug();
+    // this.physicsDebug = new PhysicsDebug();
     this.world = new World();
     this.killsCounter = new KillsCounter();
     this.loader = new Loader();
     this.gameTimer = new GameTimer();
     this.gameOver = new GameOver();
+    this.boostRoulette = new BoostRoulette();
+
+    // Current active boost key (set by `BoostRoulette` when it stops, cleared when it expires)
+    this.activeBoost = null;
 
     // Game state: only start gameplay (timer, physics, enemies, etc.) once Start is clicked
     this.gameStarted = false;
@@ -108,7 +113,7 @@ export default class Experience {
     if (this.gameStarted) {
       this.world.update();
       this.physics.update();
-      this.physicsDebug.update();
+      // if (this.debug.active) this.physicsDebug.update();
     }
 
     // this.physicsDebug.update();

@@ -6,6 +6,8 @@ import { CollisionGroup, makeCollisionGroups } from "#utils/collisionGroups.js";
 
 // Spawn the gift already tilted so it reaches the floor with an angle (not perfectly upright).
 const GIFT_SPAWN_TILT = THREE.MathUtils.degToRad(Math.random() * 360);
+const GIFT_SPAWN_RADIUS = 10; // radius around center (XZ plane)
+const GIFT_SPAWN_HEIGHT = 15; // starting Y so it falls into view
 
 export default class Gift {
   constructor() {
@@ -13,6 +15,7 @@ export default class Gift {
     this.scene = this.experience.scene;
     this.resources = this.experience.resources;
     this.physics = this.experience.physics;
+    this.time = this.experience.time;
 
     this.giftModel = this.resources.items.giftModel;
 
@@ -21,7 +24,23 @@ export default class Gift {
     this.isCollected = false;
     this.physics.addEventListener("collision", this.collisionEventHandler);
 
-    this.createGift();
+    // Timed spawning:
+    // - first spawn at 15s after game start
+    // - then every 30s
+    // - despawn after 7s if not collected
+    this.nextSpawnAtSec = 15;
+    this.despawnAtSec = null;
+  }
+
+  getRandomSpawnPosition() {
+    // Sample uniformly inside a disk (XZ plane) of radius GIFT_SPAWN_RADIUS
+    const a = Math.random() * Math.PI * 2;
+    const r = Math.sqrt(Math.random()) * GIFT_SPAWN_RADIUS;
+    return new THREE.Vector3(
+      Math.cos(a) * r,
+      GIFT_SPAWN_HEIGHT,
+      Math.sin(a) * r
+    );
   }
 
   createGift() {
@@ -81,7 +100,9 @@ export default class Gift {
 
   setPhysics() {
     const giftRigidBodyDesc = RAPIER.RigidBodyDesc.dynamic();
-    giftRigidBodyDesc.setTranslation(3, 15, 0);
+
+    const spawn = this.getRandomSpawnPosition();
+    giftRigidBodyDesc.setTranslation(spawn.x, spawn.y, spawn.z);
     // Damping prevents "infinite" rolling/spinning once it reaches the floor.
     giftRigidBodyDesc.setLinearDamping(0.6);
     giftRigidBodyDesc.setAngularDamping(1.0);
@@ -158,10 +179,47 @@ export default class Gift {
       giftParticles.createGiftParticles(new THREE.Vector3(p.x, p.y, p.z));
     }
 
+    this.despawnAtSec = null;
+    // Trigger boost roulette when the gift is collected
+    this.experience.boostRoulette?.spin?.();
+
     this.destroyGift();
   };
 
   update() {
+    // Only spawn/despawn while gameplay is running
+    if (!this.experience.gameStarted) return;
+
+    const elapsed = this.experience.getGameElapsedSeconds();
+
+    // Despawn after 7s if not collected
+    if (
+      !this.isCollected &&
+      this.giftRigidBody &&
+      this.despawnAtSec != null &&
+      elapsed >= this.despawnAtSec
+    ) {
+      // Missed gift: play particles (black) at last known position
+      const t = this.giftRigidBody.translation();
+      const giftParticles = this.experience.world?.giftParticles;
+      if (giftParticles?.createGiftParticles) {
+        giftParticles.createGiftParticles(
+          new THREE.Vector3(t.x, t.y, t.z),
+          true
+        );
+      }
+
+      this.destroyGift();
+      this.despawnAtSec = null;
+    }
+
+    // Spawn schedule: 15s, 45s, 75s, ...
+    if (!this.giftRigidBody && elapsed >= this.nextSpawnAtSec) {
+      this.createGift();
+      this.despawnAtSec = elapsed + 7;
+      this.nextSpawnAtSec += 30;
+    }
+
     if (!this.giftRigidBody || !this.giftRoot) return;
     this.giftRoot.position.set(
       this.giftRigidBody.translation().x,

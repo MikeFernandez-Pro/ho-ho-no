@@ -79,15 +79,105 @@ body {
   top: 9rem;
   left: 50%;
   transform: translateX(-50%);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 1rem;  
+  --boost-gap: 1rem;
+  width: clamp(14rem, 45vw, 32rem);
+  overflow: hidden; 
+  display: block;
+
+  /* hidden by default (roulette appears only on gift pickup) */
+  opacity: 0;
+  visibility: hidden;
+  transform: translateX(-50%) translateZ(0);
+  transition: opacity 150ms ease, visibility 150ms ease;
+  pointer-events: none;
 
   img {
     width: clamp(4rem, 8vw, 8rem);
     height: auto;
+    flex-shrink: 0;
   }
+}
+
+/* Roulette: visible only while spinning/stopped */
+.boost-container.is-visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Backdrop only while the roulette strip is spinning (not during active boost) */
+.boost-container.boost-roulette.is-spinning {
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.75rem;
+  background: rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(4px);
+}
+
+/* Center marker (where the selected boost stops) */
+.boost-container.boost-roulette.is-spinning::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 0.35rem;
+  bottom: 0.35rem;
+  width: 3px;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 999px;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.35);
+}
+
+.boost-container.is-active {
+  /* keep the original HUD position (top) and size; just show a single icon + timer */
+  overflow: visible;
+}
+
+.boost-track {
+  display: flex;
+  align-items: center;
+  gap: var(--boost-gap);
+  width: max-content;
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+}
+
+.boost-container.is-active .boost-track {
+  width: 100%;
+  justify-content: center;
+}
+
+.boost-item {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem;
+  border-radius: 0.6rem;
+}
+
+/* Active boost (top HUD) + "camembert" countdown overlay */
+.boost-active {
+  position: relative;
+  width: clamp(4rem, 8vw, 8rem);
+  height: clamp(4rem, 8vw, 8rem);
+}
+
+.boost-container.is-active img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.boost-active__pie {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.boost-active__pie-path {
+  fill: rgba(0, 0, 0, 0.5);
 }
 
 .grid-centered-container {

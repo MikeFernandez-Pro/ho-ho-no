@@ -16,7 +16,7 @@ export default class GiftParticles {
     this.radius = 2;
   }
 
-  createGiftParticles(position) {
+  createGiftParticles(position, missed = false) {
     position.y += 1.2;
     // Geometry
     const positionsArray = new Float32Array(this.count * 3);
@@ -66,9 +66,8 @@ export default class GiftParticles {
       uniforms: {
         uSize: { value: this.size },
         uResolution: { value: this.sizes.resolution },
-        uColor1: { value: new THREE.Color("#ffffff") },
-        uColor2: { value: new THREE.Color("#ffffff") },
         uProgress: new THREE.Uniform(0),
+        uMissed: { value: missed ? 1 : 0 },
       },
       vertexShader: `
         uniform float uSize;
@@ -108,10 +107,11 @@ export default class GiftParticles {
        gl_PointSize *= 1.0 / - viewPosition.z;
 
         vColor = aColor;
-        }
+        } 
         `,
       fragmentShader: `
         varying vec3 vColor;
+        uniform float uMissed;
 
         void main() {
           float circle = step(0.5, distance(gl_PointCoord, vec2(0.5)) + 0.25);
@@ -119,6 +119,10 @@ export default class GiftParticles {
 
     vec3 color = vColor;
       color *= circle;
+
+      if (uMissed == 1.0) {
+        color = vec3(0.0, 0.0, 0.0);
+      }
       
     // Final color
     gl_FragColor = vec4(color, circle);

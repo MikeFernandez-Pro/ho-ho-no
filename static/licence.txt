@@ -11,3 +11,4 @@ Music by <a href="https://pixabay.com/users/grand_project-19033897/?utm_source=l
 <a href="https://www.flaticon.com/free-icons/ghost" title="ghost icons">Ghost icons created by Freepik - Flaticon</a>
 <a href="https://www.flaticon.com/free-icons/fast-movement" title="fast movement icons">Fast movement icons created by Freepik - Flaticon</a>
 <a href="https://www.flaticon.com/free-icons/stop-watch" title="stop-watch icons">Stop-watch icons created by sonnycandra - Flaticon</a>
+<a href="https://www.flaticon.com/free-icons/bullet" title="bullet icons">Bullet icons created by Smashicons - Flaticon</a>
