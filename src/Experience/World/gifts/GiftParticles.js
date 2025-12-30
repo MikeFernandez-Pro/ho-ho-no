@@ -41,9 +41,9 @@ export default class GiftParticles {
 
       scalesArray[i] = Math.random() * 0.5 + 0.5;
 
-      colorsArray[i3] = Math.random();
-      colorsArray[i3 + 1] = Math.random();
-      colorsArray[i3 + 2] = Math.random();
+      colorsArray[i3] = Math.random() * 0.5 + 0.3;
+      colorsArray[i3 + 1] = Math.random() * 0.5 + 0.3;
+      colorsArray[i3 + 2] = Math.random() * 0.5 + 0.3;
     }
 
     const geometry = new THREE.BufferGeometry();

@@ -29,7 +29,7 @@ export default class Gift {
 
     // Timed spawning:
     // - first spawn at 15s after game start
-    // - then every 30s
+    // - then every 20s
     // - despawn after 7s if not collected
     this.nextSpawnAtSec = 15;
     this.despawnAtSec = null;
@@ -266,7 +266,7 @@ export default class Gift {
     if (!this.giftRigidBody && elapsed >= this.nextSpawnAtSec) {
       this.createGift();
       this.despawnAtSec = elapsed + 7;
-      this.nextSpawnAtSec += 30;
+      this.nextSpawnAtSec += 20;
     }
 
     if (!this.giftRigidBody || !this.giftRoot) return;

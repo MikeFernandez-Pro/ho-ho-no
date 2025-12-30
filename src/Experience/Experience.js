@@ -145,7 +145,8 @@ export default class Experience {
 
     this.camera.controls.dispose();
     this.renderer.instance.dispose();
+    this.postprocessing.destroy();
 
-    if (this.debug.active) this.debug.pane.destroy();
+    // if (this.debug.active) this.debug.pane.destroy();
   }
 }

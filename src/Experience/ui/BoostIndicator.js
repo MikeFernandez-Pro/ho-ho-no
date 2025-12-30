@@ -1,4 +1,5 @@
 import gsap from "gsap";
+import * as THREE from "three";
 import Experience from "#experience/Experience.js";
 
 // Keep keys in sync with gameplay checks:
@@ -45,8 +46,10 @@ function describeSector(cx, cy, r, startAngleDeg, endAngleDeg) {
   return `M ${cx} ${cy} L ${start.x} ${start.y} A ${r} ${r} 0 ${largeArc} 1 ${end.x} ${end.y} Z`;
 }
 
-export default class BoostIndicator {
+export default class BoostIndicator extends THREE.EventDispatcher {
   constructor() {
+    super();
+
     this.experience = new Experience();
 
     this.container = document.querySelector(".boost-container");
@@ -91,12 +94,15 @@ export default class BoostIndicator {
 
     // Activate gameplay boost immediately.
     this.experience.activeBoost = key;
+    this.dispatchEvent({ type: "boost-activated" });
 
     this.track.innerHTML = `
       <div class="boost-active" data-boost="${boost.key}">
         <p class="boost-active__label">${boost.label ?? ""}</p>
         <div class="boost-active__icon" aria-hidden="true">
-          <img src="${boost.src}" alt="${boost.key} boost" class="${boost.className}" />
+          <img src="${boost.src}" alt="${boost.key} boost" class="${
+      boost.className
+    }" />
           <svg class="boost-active__pie" viewBox="0 0 100 100" aria-hidden="true">
             <path class="boost-active__pie-path" d=""></path>
           </svg>
@@ -129,7 +135,10 @@ export default class BoostIndicator {
         return;
       }
       const endAngle = startAngle + p * 360;
-      piePath.setAttribute("d", describeSector(cx, cy, r, startAngle, endAngle));
+      piePath.setAttribute(
+        "d",
+        describeSector(cx, cy, r, startAngle, endAngle)
+      );
     };
 
     update();
@@ -149,6 +158,7 @@ export default class BoostIndicator {
           // Clear active boost when it expires (only if it hasn't been replaced).
           if (this.experience.activeBoost === key) {
             this.experience.activeBoost = null;
+            this.dispatchEvent({ type: "boost-expired" });
           }
           this.hide();
         };
@@ -169,5 +179,3 @@ export default class BoostIndicator {
     });
   };
 }
-
-
