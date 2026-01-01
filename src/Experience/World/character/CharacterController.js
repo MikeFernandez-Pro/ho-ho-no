@@ -55,6 +55,7 @@ export default class CharacterController extends THREE.EventDispatcher {
     // Animation logic
     this.isShooting = false;
     this.isMouseDown = false;
+    this.isSpaceDown = false;
     this.lastShootAt = -Infinity;
 
     // Start the smoothed rotation from the current matrix rotation
@@ -156,6 +157,7 @@ export default class CharacterController extends THREE.EventDispatcher {
 
   windowBlurEventHandler = () => {
     this.isMouseDown = false;
+    this.isSpaceDown = false;
   };
 
   animationFinishedEventHandler = (event) => {
@@ -169,6 +171,23 @@ export default class CharacterController extends THREE.EventDispatcher {
 
   keyEventHandler = (event) => {
     if (!this.isGameplayActive()) return;
+
+    // Space bar shoots with the exact same hold-to-shoot behavior as mouse click.
+    if (event.code === "Space") {
+      // Prevent page scrolling and other default browser actions.
+      event.preventDefault?.();
+
+      if (event.type === "keydown") {
+        // Ignore OS/browser key repeat; holding is handled in update().
+        if (event.repeat) return;
+        this.isSpaceDown = true;
+        this.tryShoot();
+      } else if (event.type === "keyup") {
+        this.isSpaceDown = false;
+      }
+      return;
+    }
+
     if (keysConfigList[event.code]) {
       this.eventKeys[keysConfigList[event.code]] = event.type === "keydown";
     }
@@ -212,7 +231,7 @@ export default class CharacterController extends THREE.EventDispatcher {
     this.setCharacterOrientation();
 
     // Hold-to-shoot
-    if (this.isMouseDown) {
+    if (this.isMouseDown || this.isSpaceDown) {
       this.tryShoot();
     }
 
